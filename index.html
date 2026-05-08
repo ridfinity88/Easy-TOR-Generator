@@ -270,7 +270,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgOKB2ycIL-CyHZdlDsTyh_ZfwfQZi13i-0AbIfuX-kZ61TSmG6ZER_X3PCnGyRQnJ/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweoXkFVTCrMMJhAg_NRtLorOO8KgraWG6gFVn44Ss9Pg6MDZgKrBCvjeYZTBgKlhv_/exec";
 
     let selectedFile = null;
 
@@ -509,32 +509,55 @@ async function processDecision(fileId, fileUrl, status) {
     if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
 
     document.getElementById('loadingOverlay').style.display = 'flex';
-    document.getElementById('loadingText').innerText = "กำลังประมวลผล...";
+    document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
 
     try {
-        const response = await fetch(SCRIPT_URL, {
+        let payload = { action: "approve_process", fileId: fileId, status: status };
+
+        if (status === 'approve') {
+            // 1. ดึงไฟล์จาก Google Drive มาเป็น Base64 ผ่าน Script
+            const resBase64 = await fetch(`${SCRIPT_URL}?action=getFileBase64&fileId=${fileId}`);
+            const base64Content = await resBase64.text();
+            
+            // แปลงเป็น Uint8Array ให้ pdf-lib ใช้งาน
+            const pdfBytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            const firstPage = pdfDoc.getPages()[0];
+
+            // 2. ใส่ตราประทับ (ใช้ลิงก์รูปภาพโดยตรง)
+            const stampUrl = 'https://docs.google.com/uc?export=download&id=1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
+            try {
+                const imgBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
+                const stampImg = await pdfDoc.embedPng(imgBytes);
+                // พิกัด x, y (หน่วยเป็น points) ปรับตามความเหมาะสมของไฟล์คุณ
+                firstPage.drawImage(stampImg, { x: 420, y: 70, width: 80, height: 80 });
+            } catch (e) { console.error("ใส่รูปไม่ได้:", e); }
+
+            // 3. ใส่วันที่ (พ.ศ.)
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
+            firstPage.drawText(dateStr, { x: 435, y: 55, size: 14 });
+
+            payload.pdfBase64 = await pdfDoc.saveAsBase64();
+        }
+
+        // 4. ส่งไฟล์ที่แก้เสร็จแล้วกลับไปที่ Google Drive
+        const finalResponse = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify({ 
-                action: "approve_process", 
-                fileId: fileId, 
-                status: status 
-            })
+            body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
+        const result = await finalResponse.json();
         if (result.result === "success") {
-            alert("🚀 อนุมัติเรียบร้อย! ระบบได้เปลี่ยนชื่อไฟล์และย้ายไฟล์เดิมลงถังขยะแล้ว");
+            alert("🚀 อนุมัติและบันทึกรูปภาพลง PDF เรียบร้อยแล้ว!");
             fetchApproveList();
-        } else {
-            alert("❌ เกิดข้อผิดพลาด: " + result.error);
         }
     } catch (err) {
-        alert("❌ ไม่สามารถเชื่อมต่อกับระบบได้");
+        alert("❌ เกิดข้อผิดพลาด: " + err.message);
     } finally {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 }
-
 // อัปเดตฟังก์ชันเช็ค Auth เดิม
 function checkAuth() {
     const pass = prompt("Enter Admin Password:");
