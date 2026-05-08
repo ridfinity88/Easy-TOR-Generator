@@ -270,7 +270,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHq25Qu8Mp8TeiZmnNe9WW2HI9aYmxON2lxCZrjJBtuEnp1ex7MKNBuwCSO87zZg9e/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWwW7sm1UZZAR_FLL3_XOZR1LQDmxB2Br_ffcK-gUGOoNPcU9ImRXFtBuTWJQCrqkm/exec";
 
     let selectedFile = null;
 
@@ -485,32 +485,36 @@ async function processDecision(fileId, fileUrl, status) {
         let payload = { action: "approve_process", fileId: fileId, status: status };
 
         if (status === 'approve') {
-            // ดึงไฟล์ PDF เดิมมาแก้ไข
-            const existingPdfBytes = await fetch(fileUrl).then(res => res.arrayBuffer());
+            // 1. ดึงไฟล์ PDF เดิมมา (ใช้ proxy ผ่าน Google Script เพื่อเลี่ยง CORS)
+            const proxyUrl = SCRIPT_URL + "?action=getFile&fileId=" + fileId;
+            const existingPdfBytes = await fetch(proxyUrl).then(res => res.arrayBuffer());
+            
             const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
             const pages = pdfDoc.getPages();
             const firstPage = pages[0];
 
-            // 1. ใส่ตราประทับ (Image)
+            // --- วางตรงนี้ครับ ---
             const stampUrl = 'https://docs.google.com/uc?export=download&id=1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
+            
             try {
                 const stampImageBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
                 const stampImage = await pdfDoc.embedPng(stampImageBytes);
                 firstPage.drawImage(stampImage, { x: 400, y: 50, width: 100, height: 100 });
-            } catch (e) { console.error("ไม่สามารถโหลดรูปตราประทับได้"); }
+            } catch (e) { 
+                console.error("รูปตราประทับโหลดไม่ได้:", e); 
+            }
+            // ------------------
 
-            // 2. ใส่วันที่ (Format: DD/MM/YY พ.ศ.)
+            // 2. ใส่วันที่
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            
-            // หมายเหตุ: การใส่ Text ภาษาไทยใน PDFLib ต้องใช้ Font เฉพาะ 
-            // ในที่นี้จะใส่เป็นเลขอารบิกที่มาตรฐานรองรับก่อน
             firstPage.drawText(dateStr, { x: 420, y: 40, size: 15 });
 
             const pdfBase64 = await pdfDoc.saveAsBase64();
             payload.pdfBase64 = pdfBase64;
         }
 
+        // ส่งคำสั่งไปที่ Script
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -518,11 +522,11 @@ async function processDecision(fileId, fileUrl, status) {
 
         const result = await response.json();
         if (result.result === "success") {
-            alert("บันทึกการพิจารณาเรียบร้อยแล้ว");
+            alert("✅ บันทึกการพิจารณาเรียบร้อยแล้ว");
             fetchApproveList();
         }
     } catch (err) {
-        alert("เกิดข้อผิดพลาด: " + err.message);
+        alert("❌ เกิดข้อผิดพลาด: " + err.message);
     } finally {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
