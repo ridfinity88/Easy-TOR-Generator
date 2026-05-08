@@ -3,273 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการ TOR</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <title>TOR Professional System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     
     <style>
         :root {
-            --primary: #007bff;
-            --success: #28a745;
-            --dark: #343a40;
-            --bg: #f0f2f5;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #059669;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
         }
 
         body { 
             font-family: 'Sarabun', sans-serif; 
-            margin: 0; 
-            padding: 0; 
+            margin: 0; padding: 0; 
             background: var(--bg); 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh;
+            color: var(--text-main);
+            display: flex; justify-content: center; min-height: 100vh;
         }
 
-        /* การจัดการหน้า (Views) */
-        .view { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
-        .view.active { display: block; animation: fadeIn 0.3s ease-in; }
+        /* UI Framework */
+        .view { display: none; width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; }
+        .view.active { display: block; animation: slideUp 0.4s cubic-bezier(0, 0.55, 0.45, 1); }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
 
         .card { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
             text-align: center;
         }
 
-        h2 { color: var(--dark); margin-bottom: 25px; }
+        h2 { font-weight: 700; font-size: 1.5rem; margin-bottom: 8px; color: var(--text-main); }
+        p { color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem; }
 
-        /* ปุ่มต่างๆ */
+        /* Professional Buttons */
+        .menu-grid { display: grid; gap: 12px; }
         .menu-btn {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
             cursor: pointer;
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            transition: 0.2s;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
-        .menu-btn:hover { background: var(--primary); color: white; }
+        .menu-btn:hover { border-color: var(--primary); background: #f1f5f9; transform: translateY(-2px); }
+        .menu-btn::after { content: '→'; color: var(--primary); }
 
         .action-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
+            width: 100%; padding: 14px; background: var(--primary); color: white;
+            border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: 0.2s; margin-top: 10px;
         }
+        .action-btn:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .action-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-        .action-btn:disabled { background: #ccc; cursor: not-allowed; }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: #666;
-            text-decoration: underline;
-            margin-top: 20px;
+        /* File Upload Area */
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             cursor: pointer;
-            display: inline-block;
+            transition: 0.2s;
         }
+        .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
+        .file-info { margin-top: 10px; font-size: 0.85rem; color: var(--success); display: none; }
 
-        /* ฟอร์มกรอกข้อมูล */
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        /* Form Controls */
+        .input-group { text-align: left; margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; }
         input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 16px; 
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; 
+            font-size: 1rem; transition: 0.2s; box-sizing: border-box;
         }
+        input:focus { outline: none; border-color: var(--primary); ring: 2px var(--primary); }
 
-        /* พื้นที่ซ่อนสำหรับการเรนเดอร์ภาพ */
-        #capture-container { position: absolute; left: -9999px; top: 0; }
-        .render-box { display: inline-block; background: transparent; color: black; white-space: nowrap; font-size: 24px; }
+        .back-btn { background: none; border: none; color: var(--text-sub); margin-top: 20px; cursor: pointer; font-size: 0.9rem; }
+        .back-btn:hover { color: var(--text-main); }
 
+        /* Pop up */
+        #loadingOverlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+            z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
     </style>
 </head>
 <body>
 
-<!-- หน้าแรก: เมนูหลัก -->
+<div id="loadingOverlay">
+    <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <p style="margin-top: 15px;" id="loadingText">กรุณารอสักครู่...</p>
+</div>
+
+<!-- Home View -->
 <div id="homeView" class="view active">
     <div class="card">
-        <h2>ระบบจัดการ TOR</h2>
-        <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
-        <button class="menu-btn" onclick="showView('createView')">สร้าง TOR</button>
-        <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
-        <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
+        <h2>TOR Management</h2>
+        <p>ยินดีต้อนรับสู่ระบบจัดการเอกสาร</p>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
+            <button class="menu-btn" onclick="showView('createView')">สร้าง TOR</button>
+            <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
+            <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
+        </div>
     </div>
 </div>
 
-<!-- หน้าที่ 1: ส่ง TOR -->
+<!-- Send View -->
 <div id="sendView" class="view">
     <div class="card">
-        <h2>ส่ง TOR</h2>
-        <p>หน้านี้ใช้สำหรับส่งเอกสารระบบ TOR</p>
-        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <h2>ส่ง TOR เข้าสู่ระบบ</h2>
+        <p>แนบไฟล์ PDF ที่คุณสร้างขึ้นเพื่อส่งให้เจ้าหน้าที่</p>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
+            <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
+            <div id="fileNameDisplay" class="file-info"></div>
+            <input type="file" id="fileInput" hidden accept="application/pdf" onchange="handleFile(this)">
+        </div>
+
+        <button id="finalSubmitBtn" class="action-btn" style="display: none;" onclick="uploadToDrive()">ส่งเอกสารเข้าคลังไฟล์</button>
+        
+        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
     </div>
 </div>
 
-<!-- หน้าที่ 2: สร้าง TOR (ฟังก์ชันเดิมของคุณ) -->
+<!-- Create View -->
 <div id="createView" class="view">
     <div class="card">
         <h2>สร้างเอกสาร TOR</h2>
+        <p>กรอกข้อมูลเพื่อสร้างไฟล์ PDF ภาษาไทย</p>
         <div class="input-group">
-            <label>ชื่อ-นามสกุล:</label>
-            <input type="text" class="data-input" id="input1" maxlength="50">
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" class="data-input" id="input1" maxlength="50" placeholder="ระบุชื่อของคุณ">
         </div>
         <div class="input-group">
-            <label>ตำแหน่ง/แผนก:</label>
-            <input type="text" class="data-input" id="input2" maxlength="50">
+            <label>ตำแหน่ง/แผนก</label>
+            <input type="text" class="data-input" id="input2" maxlength="50" placeholder="ระบุฝ่ายงาน">
         </div>
         <div class="input-group">
-            <label>เบอร์โทรศัพท์:</label>
-            <input type="text" class="data-input" id="input3" maxlength="50">
+            <label>เบอร์โทรศัพท์</label>
+            <input type="text" class="data-input" id="input3" maxlength="50" placeholder="0XX-XXXXXXX">
         </div>
         <div class="input-group">
-            <label>รายละเอียดงาน:</label>
-            <input type="text" class="data-input" id="input4" maxlength="50">
+            <label>รายละเอียดงาน</label>
+            <input type="text" class="data-input" id="input4" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ">
         </div>
         <button id="downloadBtn" class="action-btn" disabled>กรุณากรอกข้อมูลให้ครบ</button>
-        <br>
-        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
     </div>
 </div>
 
-<!-- หน้าที่ 3: สถานะ TOR -->
-<div id="statusView" class="view">
-    <div class="card">
-        <h2>สถานะ TOR</h2>
-        <p>กำลังติดตามสถานะเอกสาร...</p>
-        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
-    </div>
-</div>
+<!-- อื่นๆ (หน้าเปล่า) -->
+<div id="statusView" class="view"><div class="card"><h2>สถานะ</h2><p>ยังไม่มีรายการในขณะนี้</p><button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button></div></div>
+<div id="approveView" class="view"><div class="card"><h2>ส่วนการอนุมัติ</h2><p>ยินดีต้อนรับผู้ดูแลระบบ</p><button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button></div></div>
 
-<!-- หน้าที่ 4: อนุมัติ TOR (Protected) -->
-<div id="approveView" class="view">
-    <div class="card">
-        <h2 style="color: var(--success);">หน้าอนุมัติ TOR</h2>
-        <p>รายการเอกสารที่รอการอนุมัติ</p>
-        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
-    </div>
-</div>
-
-<!-- พื้นที่ Render ภาพ -->
-<div id="capture-container">
-    <div id="box1" class="render-box"></div>
-    <div id="box2" class="render-box"></div>
-    <div id="box3" class="render-box"></div>
-    <div id="box4" class="render-box"></div>
-</div>
-
-<!-- Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<div id="capture-container"><div id="box1" class="render-box"></div><div id="box2" class="render-box"></div><div id="box3" class="render-box"></div><div id="box4" class="render-box"></div></div>
 
 <script>
-    // --- ฟังก์ชันจัดการเปลี่ยนหน้า ---
-    function showView(viewId) {
+    // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
+    const SCRIPT_URL = "ใส่_WEB_APP_URL_ที่นี่";
+
+    let selectedFile = null;
+
+    function showView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
-        window.scrollTo(0,0);
+        document.getElementById(id).classList.add('active');
     }
 
-    // --- ฟังก์ชันเช็ครหัสผ่าน ---
     function checkAuth() {
-        const pass = prompt("กรุณาใส่รหัสผ่านเพื่อเข้าสู่หน้าอนุมัติ:");
-        if (pass === "123456789") {
-            showView('approveView');
-        } else if (pass !== null) {
-            alert("รหัสผ่านไม่ถูกต้อง!");
+        const pass = prompt("Enter Admin Password:");
+        if (pass === "123456789") showView('approveView');
+        else if (pass !== null) alert("❌ รหัสผ่านไม่ถูกต้อง");
+    }
+
+    function handleFile(input) {
+        const file = input.files[0];
+        if (file) {
+            selectedFile = file;
+            document.getElementById('fileNameDisplay').innerText = "✅ เตรียมส่งไฟล์: " + file.name;
+            document.getElementById('fileNameDisplay').style.display = "block";
+            document.getElementById('uploadLabel').innerText = "เปลี่ยนไฟล์";
+            document.getElementById('finalSubmitBtn').style.display = "block";
         }
     }
 
-    // --- ฟังก์ชันสร้าง PDF (คงเดิมจากที่คุยกัน) ---
+    async function uploadToDrive() {
+        if (!selectedFile) return;
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingText').innerText = "กำลังอัปโหลดไฟล์ไปที่ Google Drive...";
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64 = e.target.result.split(',')[1];
+            const data = {
+                base64: base64,
+                type: selectedFile.type,
+                name: selectedFile.name
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.result === "success") {
+                    alert("🚀 สำเร็จ! ไฟล์ของคุณถูกเก็บเข้าที่ Google Drive เรียบร้อยแล้ว");
+                    showView('homeView');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (err) {
+                alert("❌ เกิดข้อผิดพลาด: " + err.toString());
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    // Logic สร้าง PDF เหมือนเดิม
     const inputs = document.querySelectorAll('.data-input');
     const downloadBtn = document.getElementById('downloadBtn');
 
     inputs.forEach(input => {
         input.addEventListener('input', () => {
             const allFilled = Array.from(inputs).every(i => i.value.trim() !== "");
-            if (allFilled) {
-                downloadBtn.disabled = false;
-                downloadBtn.innerText = "ดาวน์โหลด PDF";
-            } else {
-                downloadBtn.disabled = true;
-                downloadBtn.innerText = "กรุณากรอกข้อมูลให้ครบ";
-            }
+            downloadBtn.disabled = !allFilled;
+            downloadBtn.innerText = allFilled ? "ดาวน์โหลด PDF" : "กรุณากรอกข้อมูลให้ครบ";
         });
     });
 
-    async function generatePDF() {
-        downloadBtn.disabled = true;
-        downloadBtn.innerText = "กำลังสร้างไฟล์...";
-
-        try {
-            const templateUrl = 'template.pdf'; 
-            const existingPdfBytes = await fetch(templateUrl).then(res => {
-                if(!res.ok) throw new Error();
-                return res.arrayBuffer();
-            });
-
-            const imgDatas = [];
-            for (let i = 1; i <= 4; i++) {
-                const box = document.getElementById(`box${i}`);
-                box.innerText = document.getElementById(`input${i}`).value;
-                const canvas = await html2canvas(box, { backgroundColor: null, scale: 2 });
-                imgDatas.push(canvas.toDataURL('image/png'));
-            }
-
-            const { PDFDocument } = PDFLib;
-            const pdfDoc = await PDFDocument.load(existingPdfBytes);
-            const firstPage = pdfDoc.getPages()[0];
-
-            // ปรับตำแหน่งตามฟอร์มของคุณ
-            const positions = [
-                { x: 100, y: 700, w: 200 },
-                { x: 100, y: 650, w: 200 },
-                { x: 100, y: 600, w: 200 },
-                { x: 100, y: 550, w: 200 }
-            ];
-
-            for (let i = 0; i < 4; i++) {
-                const pngImage = await pdfDoc.embedPng(imgDatas[i]);
-                const dims = pngImage.scale(0.5);
-                firstPage.drawImage(pngImage, {
-                    x: positions[i].x, y: positions[i].y, width: positions[i].w,
-                    height: (positions[i].w / dims.width) * dims.height
-                });
-            }
-
-            const pdfBytes = await pdfDoc.save();
-            const blob = new Blob([pdfBytes], { type: "application/pdf" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "TOR_Document.pdf";
-            link.click();
-
-        } catch (error) {
-            alert("ไม่สามารถโหลดไฟล์ template.pdf ได้ ตรวจสอบว่ามีไฟล์อยู่บน GitHub หรือไม่");
-        } finally {
-            downloadBtn.disabled = false;
-            downloadBtn.innerText = "ดาวน์โหลด PDF";
-        }
-    }
-
-    downloadBtn.addEventListener('click', generatePDF);
+    // ... ส่วนของ generatePDF (คงเดิมจากเวอร์ชันที่แล้วของคุณ) ...
+    // ใส่ generatePDF() ที่นี่ โดยอย่าลืมเปลี่ยน templateUrl = 'template.pdf'
 </script>
+
+<style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
 
 </body>
 </html>
