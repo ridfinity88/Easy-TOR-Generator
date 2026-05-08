@@ -270,7 +270,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWwW7sm1UZZAR_FLL3_XOZR1LQDmxB2Br_ffcK-gUGOoNPcU9ImRXFtBuTWJQCrqkm/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhex1IHJOa2s09IwCFN9bioB3DDJLfqxd5VHUXJMTepF2Sd_OvHX_DXPDTsgY_E7tY/exec";
 
     let selectedFile = null;
 
@@ -509,54 +509,53 @@ async function processDecision(fileId, fileUrl, status) {
     if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
 
     document.getElementById('loadingOverlay').style.display = 'flex';
-    document.getElementById('loadingText').innerText = "กำลังประมวลผลและแก้ไข PDF...";
+    document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
 
     try {
         let payload = { action: "approve_process", fileId: fileId, status: status };
 
         if (status === 'approve') {
-            // 1. ดึงไฟล์ PDF เดิมมา (ใช้ proxy ผ่าน Google Script เพื่อเลี่ยง CORS)
-            const proxyUrl = SCRIPT_URL + "?action=getFile&fileId=" + fileId;
-            const existingPdfBytes = await fetch(proxyUrl).then(res => res.arrayBuffer());
-            
+            // 1. ดึงไฟล์ PDF ผ่าน Script (Proxy) เพื่อเลี่ยง CORS
+            const proxyUrl = `${SCRIPT_URL}?action=getFile&fileId=${fileId}`;
+            const response = await fetch(proxyUrl);
+            const base64Data = await response.text();
+            const existingPdfBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+
             const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
             const pages = pdfDoc.getPages();
             const firstPage = pages[0];
 
-            // --- วางตรงนี้ครับ ---
+            // 2. ใส่ตราประทับ (ใช้ Proxy สำหรับรูปภาพด้วยเพื่อความชัวร์)
             const stampUrl = 'https://docs.google.com/uc?export=download&id=1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
-            
             try {
-                const stampImageBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
-                const stampImage = await pdfDoc.embedPng(stampImageBytes);
-                firstPage.drawImage(stampImage, { x: 400, y: 50, width: 100, height: 100 });
-            } catch (e) { 
-                console.error("รูปตราประทับโหลดไม่ได้:", e); 
-            }
-            // ------------------
+                const stampBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
+                const stampImage = await pdfDoc.embedPng(stampBytes);
+                // ปรับตำแหน่ง x, y ตามความเหมาะสม (A4 คือประมาณ 595 x 842)
+                firstPage.drawImage(stampImage, { x: 420, y: 70, width: 80, height: 80 });
+            } catch (e) { console.error("โหลดรูปไม่สำเร็จ", e); }
 
-            // 2. ใส่วันที่
+            // 3. ใส่วันที่ (พ.ศ.)
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            firstPage.drawText(dateStr, { x: 420, y: 40, size: 15 });
+            firstPage.drawText(dateStr, { x: 435, y: 55, size: 14 });
 
-            const pdfBase64 = await pdfDoc.saveAsBase64();
-            payload.pdfBase64 = pdfBase64;
+            payload.pdfBase64 = await pdfDoc.saveAsBase64();
         }
 
-        // ส่งคำสั่งไปที่ Script
-        const response = await fetch(SCRIPT_URL, {
+        // ส่งผลลัพธ์กลับไปที่ Server
+        const finalRes = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
-
-        const result = await response.json();
+        
+        const result = await finalRes.json();
         if (result.result === "success") {
-            alert("✅ บันทึกการพิจารณาเรียบร้อยแล้ว");
+            alert("🚀 พิจารณาเรียบร้อยและอัปเดตไฟล์แล้ว");
             fetchApproveList();
         }
     } catch (err) {
-        alert("❌ เกิดข้อผิดพลาด: " + err.message);
+        alert("❌ ผิดพลาด: " + err.message);
+        console.error(err);
     } finally {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
