@@ -270,7 +270,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhex1IHJOa2s09IwCFN9bioB3DDJLfqxd5VHUXJMTepF2Sd_OvHX_DXPDTsgY_E7tY/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgOKB2ycIL-CyHZdlDsTyh_ZfwfQZi13i-0AbIfuX-kZ61TSmG6ZER_X3PCnGyRQnJ/exec";
 
     let selectedFile = null;
 
@@ -509,54 +509,27 @@ async function processDecision(fileId, fileUrl, status) {
     if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
 
     document.getElementById('loadingOverlay').style.display = 'flex';
-    document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
+    document.getElementById('loadingText').innerText = "กำลังประมวลผล...";
 
     try {
-        let payload = { action: "approve_process", fileId: fileId, status: status };
-
-        if (status === 'approve') {
-            // 1. ดึงไฟล์ PDF ผ่าน Script (Proxy) เพื่อเลี่ยง CORS
-            const proxyUrl = `${SCRIPT_URL}?action=getFile&fileId=${fileId}`;
-            const response = await fetch(proxyUrl);
-            const base64Data = await response.text();
-            const existingPdfBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-
-            const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-            const pages = pdfDoc.getPages();
-            const firstPage = pages[0];
-
-            // 2. ใส่ตราประทับ (ใช้ Proxy สำหรับรูปภาพด้วยเพื่อความชัวร์)
-            // เปลี่ยนจากลิงก์เดิม เป็นลิงก์ที่บังคับดาวน์โหลดโดยตรง
-const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
-            try {
-                const stampBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
-                const stampImage = await pdfDoc.embedPng(stampBytes);
-                // ปรับตำแหน่ง x, y ตามความเหมาะสม (A4 คือประมาณ 595 x 842)
-                firstPage.drawImage(stampImage, { x: 420, y: 70, width: 80, height: 80 });
-            } catch (e) { console.error("โหลดรูปไม่สำเร็จ", e); }
-
-            // 3. ใส่วันที่ (พ.ศ.)
-            const now = new Date();
-            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            firstPage.drawText(dateStr, { x: 435, y: 55, size: 14 });
-
-            payload.pdfBase64 = await pdfDoc.saveAsBase64();
-        }
-
-        // ส่งผลลัพธ์กลับไปที่ Server
-        const finalRes = await fetch(SCRIPT_URL, {
+        const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ 
+                action: "approve_process", 
+                fileId: fileId, 
+                status: status 
+            })
         });
-        
-        const result = await finalRes.json();
+
+        const result = await response.json();
         if (result.result === "success") {
-            alert("🚀 พิจารณาเรียบร้อยและอัปเดตไฟล์แล้ว");
+            alert("🚀 อนุมัติเรียบร้อย! ระบบได้เปลี่ยนชื่อไฟล์และย้ายไฟล์เดิมลงถังขยะแล้ว");
             fetchApproveList();
+        } else {
+            alert("❌ เกิดข้อผิดพลาด: " + result.error);
         }
     } catch (err) {
-        alert("❌ ผิดพลาด: " + err.message);
-        console.error(err);
+        alert("❌ ไม่สามารถเชื่อมต่อกับระบบได้");
     } finally {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
