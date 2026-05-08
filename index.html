@@ -526,7 +526,8 @@ async function processDecision(fileId, fileUrl, status) {
             const firstPage = pages[0];
 
             // 2. ใส่ตราประทับ (ใช้ Proxy สำหรับรูปภาพด้วยเพื่อความชัวร์)
-            const stampUrl = 'https://docs.google.com/uc?export=download&id=1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
+            // เปลี่ยนจากลิงก์เดิม เป็นลิงก์ที่บังคับดาวน์โหลดโดยตรง
+const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
             try {
                 const stampBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
                 const stampImage = await pdfDoc.embedPng(stampBytes);
