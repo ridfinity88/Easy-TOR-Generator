@@ -3,67 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thai PDF Generator</title>
+    <title>ระบบจัดการ TOR</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Sarabun', sans-serif; padding: 20px; background: #f0f2f5; }
-        .container { max-width: 600px; background: white; padding: 30px; border-radius: 12px; shadow: 0 4px 6px rgba(0,0,0,0.1); margin: auto; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        
-        /* ส่วนที่ใช้สร้างภาพ PNG (ซ่อนไว้ไม่ให้ผู้ใช้เห็น) */
-        #capture-container { position: absolute; left: -9999px; top: 0; }
-        .render-box { 
-            display: inline-block; 
-            background: transparent; 
-            color: black; 
-            white-space: nowrap;
-            /* ปรับขนาดตัวอักษรได้ที่นี่ */
-            font-size: 24px; 
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --dark: #343a40;
+            --bg: #f0f2f5;
         }
 
-        button {
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg); 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+        }
+
+        /* การจัดการหน้า (Views) */
+        .view { display: none; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
+        .view.active { display: block; animation: fadeIn 0.3s ease-in; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+
+        h2 { color: var(--dark); margin-bottom: 25px; }
+
+        /* ปุ่มต่างๆ */
+        .menu-btn {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            transition: 0.2s;
+        }
+
+        .menu-btn:hover { background: var(--primary); color: white; }
+
+        .action-btn {
             width: 100%;
             padding: 15px;
-            background-color: #007bff;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
+            margin-top: 10px;
         }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        button:hover:not(:disabled) { background-color: #0056b3; }
+
+        .action-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #666;
+            text-decoration: underline;
+            margin-top: 20px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* ฟอร์มกรอกข้อมูล */
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+        }
+
+        /* พื้นที่ซ่อนสำหรับการเรนเดอร์ภาพ */
+        #capture-container { position: absolute; left: -9999px; top: 0; }
+        .render-box { display: inline-block; background: transparent; color: black; white-space: nowrap; font-size: 24px; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>กรอกข้อมูลสำหรับ PDF</h2>
-    
-    <div class="input-group">
-        <label>ข้อมูลที่ 1 (ชื่อ-นามสกุล):</label>
-        <input type="text" class="data-input" id="input1" maxlength="50" placeholder="สูงสุด 50 ตัวอักษร">
+<!-- หน้าแรก: เมนูหลัก -->
+<div id="homeView" class="view active">
+    <div class="card">
+        <h2>ระบบจัดการ TOR</h2>
+        <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
+        <button class="menu-btn" onclick="showView('createView')">สร้าง TOR</button>
+        <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
+        <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
     </div>
-    <div class="input-group">
-        <label>ข้อมูลที่ 2 (ที่อยู่):</label>
-        <input type="text" class="data-input" id="input2" maxlength="50" placeholder="สูงสุด 50 ตัวอักษร">
-    </div>
-    <div class="input-group">
-        <label>ข้อมูลที่ 3 (เบอร์โทร):</label>
-        <input type="text" class="data-input" id="input3" maxlength="50" placeholder="สูงสุด 50 ตัวอักษร">
-    </div>
-    <div class="input-group">
-        <label>ข้อมูลที่ 4 (หมายเหตุ):</label>
-        <input type="text" class="data-input" id="input4" maxlength="50" placeholder="สูงสุด 50 ตัวอักษร">
-    </div>
-
-    <button id="downloadBtn" disabled>กำลังรอข้อมูล...</button>
 </div>
 
+<!-- หน้าที่ 1: ส่ง TOR -->
+<div id="sendView" class="view">
+    <div class="card">
+        <h2>ส่ง TOR</h2>
+        <p>หน้านี้ใช้สำหรับส่งเอกสารระบบ TOR</p>
+        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<!-- หน้าที่ 2: สร้าง TOR (ฟังก์ชันเดิมของคุณ) -->
+<div id="createView" class="view">
+    <div class="card">
+        <h2>สร้างเอกสาร TOR</h2>
+        <div class="input-group">
+            <label>ชื่อ-นามสกุล:</label>
+            <input type="text" class="data-input" id="input1" maxlength="50">
+        </div>
+        <div class="input-group">
+            <label>ตำแหน่ง/แผนก:</label>
+            <input type="text" class="data-input" id="input2" maxlength="50">
+        </div>
+        <div class="input-group">
+            <label>เบอร์โทรศัพท์:</label>
+            <input type="text" class="data-input" id="input3" maxlength="50">
+        </div>
+        <div class="input-group">
+            <label>รายละเอียดงาน:</label>
+            <input type="text" class="data-input" id="input4" maxlength="50">
+        </div>
+        <button id="downloadBtn" class="action-btn" disabled>กรุณากรอกข้อมูลให้ครบ</button>
+        <br>
+        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<!-- หน้าที่ 3: สถานะ TOR -->
+<div id="statusView" class="view">
+    <div class="card">
+        <h2>สถานะ TOR</h2>
+        <p>กำลังติดตามสถานะเอกสาร...</p>
+        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<!-- หน้าที่ 4: อนุมัติ TOR (Protected) -->
+<div id="approveView" class="view">
+    <div class="card">
+        <h2 style="color: var(--success);">หน้าอนุมัติ TOR</h2>
+        <p>รายการเอกสารที่รอการอนุมัติ</p>
+        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<!-- พื้นที่ Render ภาพ -->
 <div id="capture-container">
     <div id="box1" class="render-box"></div>
     <div id="box2" class="render-box"></div>
@@ -71,14 +174,32 @@
     <div id="box4" class="render-box"></div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script>
+    // --- ฟังก์ชันจัดการเปลี่ยนหน้า ---
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    // --- ฟังก์ชันเช็ครหัสผ่าน ---
+    function checkAuth() {
+        const pass = prompt("กรุณาใส่รหัสผ่านเพื่อเข้าสู่หน้าอนุมัติ:");
+        if (pass === "123456789") {
+            showView('approveView');
+        } else if (pass !== null) {
+            alert("รหัสผ่านไม่ถูกต้อง!");
+        }
+    }
+
+    // --- ฟังก์ชันสร้าง PDF (คงเดิมจากที่คุยกัน) ---
     const inputs = document.querySelectorAll('.data-input');
     const downloadBtn = document.getElementById('downloadBtn');
 
-    // ตรวจสอบการกรอกข้อมูลให้ครบ 4 ช่อง
     inputs.forEach(input => {
         input.addEventListener('input', () => {
             const allFilled = Array.from(inputs).every(i => i.value.trim() !== "");
@@ -97,58 +218,50 @@
         downloadBtn.innerText = "กำลังสร้างไฟล์...";
 
         try {
-            // 1. ดึงไฟล์ PDF ต้นฉบับจาก GitHub (เปลี่ยน URL เป็นของคุณ)
             const templateUrl = 'template.pdf'; 
-            const existingPdfBytes = await fetch(templateUrl).then(res => res.arrayBuffer());
+            const existingPdfBytes = await fetch(templateUrl).then(res => {
+                if(!res.ok) throw new Error();
+                return res.arrayBuffer();
+            });
 
-            // 2. แปลงข้อความเป็นภาพ PNG
             const imgDatas = [];
             for (let i = 1; i <= 4; i++) {
                 const box = document.getElementById(`box${i}`);
                 box.innerText = document.getElementById(`input${i}`).value;
-                
                 const canvas = await html2canvas(box, { backgroundColor: null, scale: 2 });
                 imgDatas.push(canvas.toDataURL('image/png'));
             }
 
-            // 3. เริ่มจัดการ PDF
             const { PDFDocument } = PDFLib;
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
-            const pages = pdfDoc.getPages();
-            const firstPage = pages[0];
+            const firstPage = pdfDoc.getPages()[0];
 
-            // --- ตั้งค่าตำแหน่ง (X, Y) และขนาดของแต่ละรูปที่นี่ ---
-            // หมายเหตุ: ค่า Y เริ่มจากล่างขึ้นบน (0 คือล่างสุดของกระดาษ)
+            // ปรับตำแหน่งตามฟอร์มของคุณ
             const positions = [
-                { x: 100, y: 700, w: 200 }, // ของช่องที่ 1
-                { x: 100, y: 650, w: 200 }, // ของช่องที่ 2
-                { x: 100, y: 600, w: 200 }, // ของช่องที่ 3
-                { x: 100, y: 550, w: 200 }  // ของช่องที่ 4
+                { x: 100, y: 700, w: 200 },
+                { x: 100, y: 650, w: 200 },
+                { x: 100, y: 600, w: 200 },
+                { x: 100, y: 550, w: 200 }
             ];
 
             for (let i = 0; i < 4; i++) {
                 const pngImage = await pdfDoc.embedPng(imgDatas[i]);
-                const dims = pngImage.scale(0.5); // ปรับ scale รูปภาพได้
-                
+                const dims = pngImage.scale(0.5);
                 firstPage.drawImage(pngImage, {
-                    x: positions[i].x,
-                    y: positions[i].y,
-                    width: positions[i].w, 
-                    height: (positions[i].w / dims.width) * dims.height // ปรับความสูงตามสัดส่วนอัตโนมัติ
+                    x: positions[i].x, y: positions[i].y, width: positions[i].w,
+                    height: (positions[i].w / dims.width) * dims.height
                 });
             }
 
-            // 4. บันทึกและดาวน์โหลด
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = "Completed_Form.pdf";
+            link.download = "TOR_Document.pdf";
             link.click();
 
         } catch (error) {
-            console.error(error);
-            alert("เกิดข้อผิดพลาดในการโหลดไฟล์ต้นฉบับ ตรวจสอบชื่อไฟล์ template.pdf");
+            alert("ไม่สามารถโหลดไฟล์ template.pdf ได้ ตรวจสอบว่ามีไฟล์อยู่บน GitHub หรือไม่");
         } finally {
             downloadBtn.disabled = false;
             downloadBtn.innerText = "ดาวน์โหลด PDF";
