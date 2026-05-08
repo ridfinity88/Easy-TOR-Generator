@@ -275,9 +275,39 @@
     let selectedFile = null;
 
     function showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+    // 1. ซ่อนทุกหน้า และแสดงหน้าทีเลือก (ของเดิม)
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+
+    // 2. ส่วนที่เพิ่มใหม่: ถ้าเป็นการเปิดหน้า 'sendView' ให้ล้างค่าไฟล์เก่าทิ้งทันที
+    if (id === 'sendView') {
+        resetSendForm();
     }
+}
+
+// ฟังก์ชันสำหรับล้างค่าหน้าส่งไฟล์
+function resetSendForm() {
+    selectedFile = null; // ล้างค่าตัวแปรไฟล์ในหน่วยความจำ
+    
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) fileInput.value = ""; // ล้างค่าใน input file
+
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    if (fileNameDisplay) {
+        fileNameDisplay.innerText = "";
+        fileNameDisplay.style.display = "none"; // ซ่อนชื่อไฟล์ที่เคยโชว์
+    }
+
+    const uploadLabel = document.getElementById('uploadLabel');
+    if (uploadLabel) {
+        uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่"; // คืนค่าข้อความเริ่มต้น
+    }
+
+    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+    if (finalSubmitBtn) {
+        finalSubmitBtn.style.display = "none"; // ซ่อนปุ่มส่ง
+    }
+}
 
     function checkAuth() {
         const pass = prompt("Enter Admin Password:");
