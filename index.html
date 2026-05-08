@@ -226,7 +226,7 @@
                 });
                 const result = await response.json();
                 if (result.result === "success") {
-                    alert("🚀 สำเร็จ! ไฟล์ของคุณถูกเก็บเข้าที่ Google Drive เรียบร้อยแล้ว");
+                    alert("🚀 ส่งเอกสารสำเร็จ! กรุณารอการอนุมัติ");
                     showView('homeView');
                 } else {
                     throw new Error(result.error);
