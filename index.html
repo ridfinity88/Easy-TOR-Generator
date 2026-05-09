@@ -185,8 +185,18 @@
 
         <button id="finalSubmitBtn" class="action-btn" style="display: none;" onclick="uploadToDrive()">ส่งอนุมัติเอกสาร</button>
         
-        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
+</div>
+
+    <!-- ส่วนใน sendView -->
+<div class="upload-area" onclick="document.getElementById('fileInput').click()">
+    <div style="font-size: 40px; margin-bottom: 10px;">📂</div>
+    <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)</div>
+    <div id="fileNameDisplay" class="file-info" style="white-space: pre-line;"></div>
+    <!-- เพิ่ม multiple และตรวจสอบ accept -->
+    <input type="file" id="fileInput" hidden accept=".pdf" multiple onchange="handleFile(this)">
 </div>
 
 <!-- Create View -->
@@ -211,7 +221,8 @@
             <input type="text" class="data-input" id="input4" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ">
         </div>
         <button id="downloadBtn" class="action-btn" disabled>กรุณากรอกข้อมูลให้ครบ</button>
-        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -239,7 +250,8 @@
             </table>
         </div>
         
-        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 <div id="approveView" class="view">
@@ -262,7 +274,8 @@
             </table>
         </div>
         
-        <button class="back-btn" onclick="showView('homeView')">← กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -315,64 +328,69 @@ function resetSendForm() {
         else if (pass !== null) alert("❌ รหัสผ่านไม่ถูกต้อง");
     }
 
-    function handleFile(input) {
-        const file = input.files[0];
-        if (file) {
-            selectedFile = file;
-            document.getElementById('fileNameDisplay').innerText = "✅ เตรียมส่งไฟล์: " + file.name;
-            document.getElementById('fileNameDisplay').style.display = "block";
-            document.getElementById('uploadLabel').innerText = "เปลี่ยนไฟล์";
-            document.getElementById('finalSubmitBtn').style.display = "block";
+    let selectedFiles = []; // เปลี่ยนจาก selectedFile เป็น Array
+
+function handleFile(input) {
+    const files = Array.from(input.files);
+    if (files.length > 0) {
+        selectedFiles = files;
+        // แสดงรายชื่อไฟล์ทั้งหมดที่เลือก
+        const names = files.map(f => "📄 " + f.name).join('\n');
+        document.getElementById('fileNameDisplay').innerText = "เตรียมส่งไฟล์:\n" + names;
+        document.getElementById('fileNameDisplay').style.display = "block";
+        document.getElementById('uploadLabel').innerText = "เปลี่ยนการเลือกไฟล์";
+        document.getElementById('finalSubmitBtn').style.display = "block";
+    }
+}
+
+async function uploadToDrive() {
+    if (selectedFiles.length === 0) return;
+    
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    let successCount = 0;
+    
+    // วนลูปส่งทีละไฟล์
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        document.getElementById('loadingText').innerText = `กำลังอัปโหลดไฟล์ (${i + 1}/${selectedFiles.length}): ${file.name}`;
+
+        try {
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+                reader.readAsDataURL(file);
+            });
+
+            const data = {
+                base64: base64,
+                type: file.type,
+                name: file.name
+            };
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            if (result.result === "success") successCount++;
+
+        } catch (err) {
+            console.error("Error uploading:", file.name, err);
         }
     }
 
-    async function uploadToDrive() {
-        if (!selectedFile) return;
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังอัปโหลดไฟล์ไปที่ Google Drive...";
+    document.getElementById('loadingOverlay').style.display = 'none';
+    alert(`🚀 ส่งสำเร็จทั้งหมด ${successCount} จาก ${selectedFiles.length} ไฟล์`);
+    showView('homeView');
+}
 
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const base64 = e.target.result.split(',')[1];
-            const data = {
-                base64: base64,
-                type: selectedFile.type,
-                name: selectedFile.name
-            };
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (result.result === "success") {
-                    alert("🚀 ส่งเอกสารสำเร็จ! กรุณารอการอนุมัติ");
-                    showView('homeView');
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (err) {
-                alert("❌ เกิดข้อผิดพลาด: " + err.toString());
-            } finally {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
-        };
-        reader.readAsDataURL(selectedFile);
-    }
-
-    // Logic สร้าง PDF เหมือนเดิม
-    const inputs = document.querySelectorAll('.data-input');
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    inputs.forEach(input => {
-        input.addEventListener('input', () => {
-            const allFilled = Array.from(inputs).every(i => i.value.trim() !== "");
-            downloadBtn.disabled = !allFilled;
-            downloadBtn.innerText = allFilled ? "ดาวน์โหลด PDF" : "กรุณากรอกข้อมูลให้ครบ";
-        });
-    });
+// และอย่าลืมแก้ฟังก์ชัน resetSendForm ให้ล้าง selectedFiles = [] ด้วยครับ
+function resetSendForm() {
+    selectedFiles = []; 
+    // ... code ส่วนที่เหลือเหมือนเดิม ...
+}
 
     // ... ส่วนของ generatePDF (คงเดิมจากเวอร์ชันที่แล้วของคุณ) ...
     // ใส่ generatePDF() ที่นี่ โดยอย่าลืมเปลี่ยน templateUrl = 'template.pdf'
