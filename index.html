@@ -146,11 +146,38 @@
 .btn-approve { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-right: 5px; }
 .btn-reject { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
 .btn-approve:hover, .btn-reject:hover { opacity: 0.8; }
+
+        /* Modal Style */
+.modal {
+    display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+}
+.modal-content {
+    background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center;
+}
+.password-wrapper { position: relative; margin: 15px 0; }
+.password-wrapper input { width: 100%; padding: 12px 40px 12px 12px; }
+.toggle-password {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: #64748b;
+}
         
     </style>
 </head>
 <body>
 
+<div id="pwdModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">กรุณาใส่รหัสผ่าน</h3>
+        <div class="password-wrapper">
+            <input type="password" id="modalInput" placeholder="รหัสผ่าน">
+            <span class="toggle-password" onclick="togglePwd()">👁️</span>
+        </div>
+        <button class="action-btn" onclick="submitPassword()">ตกลง</button>
+        <button class="back-btn" onclick="closeModal()">ยกเลิก</button>
+    </div>
+</div>
+    
 <div id="loadingOverlay">
     <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite;"></div>
     <p style="margin-top: 15px;" id="loadingText">กรุณารอสักครู่...</p>
@@ -298,11 +325,6 @@
     }
 }
 
-    function checkAuth() {
-        const pass = prompt("Enter Admin Password:");
-        if (pass === "123456789") showView('approveView');
-        else if (pass !== null) alert("❌ รหัสผ่านไม่ถูกต้อง");
-    }
 
     let selectedFiles = []; // เปลี่ยนจาก selectedFile เป็น Array
 
@@ -446,45 +468,6 @@ showView = function(id) {
     }
 }
 
-// ฟังก์ชันลบไฟล์พร้อมตรวจสอบรหัสผ่าน A0001 - A0030
-async function deleteFile(fileId) {
-    const pass = prompt("กรุณาใส่รหัสผ่านเพื่อลบเอกสาร:");
-    if (!pass) return;
-
-    // สร้างลิสต์รหัสผ่าน A0001 ถึง A0030
-    const validPasswords = [];
-    for (let i = 1; i <= 30; i++) {
-        validPasswords.push("A" + i.toString().padStart(4, '0'));
-    }
-
-    if (validPasswords.includes(pass)) {
-        if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบเอกสารนี้?")) return;
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังลบไฟล์...";
-
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "delete", fileId: fileId })
-            });
-            const result = await response.json();
-            if (result.result === "success") {
-                alert("🗑️ ลบเอกสารเรียบร้อยแล้ว");
-                fetchStatus();
-            } else {
-                alert("❌ ไม่สามารถลบได้: " + result.error);
-            }
-        } catch (err) {
-            alert("❌ เกิดข้อผิดพลาดในการลบ");
-        } finally {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    } else {
-        alert("❌ รหัสผ่านไม่ถูกต้อง ไม่สามารถลบไฟล์ได้");
-    }
-}
-
     // ฟังก์ชันดึงรายการที่ยังไม่ได้พิจารณา
 async function fetchApproveList() {
     const tableBody = document.getElementById('approveTableBody');
@@ -596,16 +579,80 @@ try {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 }
-// อัปเดตฟังก์ชันเช็ค Auth เดิม
-function checkAuth() {
-    const pass = prompt("Enter Admin Password:");
-    if (pass === "123456789") {
-        showView('approveView');
-        fetchApproveList();
-    } else if (pass !== null) {
-        alert("❌ รหัสผ่านไม่ถูกต้อง");
+
+
+
+
+let currentPwdType = ''; // 'delete' หรือ 'approve'
+let currentDeleteId = '';
+
+function togglePwd() {
+    const input = document.getElementById('modalInput');
+    const icon = document.querySelector('.toggle-password');
+    if (input.type === "password") {
+        input.type = "text";
+        icon.innerText = "🔒";
+    } else {
+        input.type = "password";
+        icon.innerText = "👁️";
     }
 }
+
+// แก้ไขฟังก์ชันเดิม
+function checkAuth() {
+    currentPwdType = 'approve';
+    document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
+    openModal();
+}
+
+async function deleteFile(fileId) {
+    currentPwdType = 'delete';
+    currentDeleteId = fileId;
+    document.getElementById('modalTitle').innerText = "รหัสยืนยันการลบ";
+    openModal();
+}
+
+function openModal() {
+    document.getElementById('modalInput').value = '';
+    document.getElementById('pwdModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('pwdModal').style.display = 'none';
+}
+
+async function submitPassword() {
+    const pwd = document.getElementById('modalInput').value;
+    if (!pwd) return;
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${pwd}`);
+        const result = await response.json();
+        
+        document.getElementById('loadingOverlay').style.display = 'none';
+        closeModal();
+
+        if (result.success) {
+            if (currentPwdType === 'approve') {
+                showView('approveView');
+                fetchApproveList();
+            } else {
+                executeDelete(currentDeleteId); // เรียกฟังก์ชันลบจริง
+            }
+        } else {
+            alert("❌ รหัสผ่านไม่ถูกต้องสำหรับสิทธิ์นี้");
+        }
+    } catch (e) {
+        alert("เกิดข้อผิดพลาดในการตรวจสอบ");
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+
+
+
+    
     
 </script>
 
