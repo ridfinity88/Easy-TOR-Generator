@@ -303,7 +303,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBr9m9mCx7W2FlkDVunJVGbJKW48MfYRLekAlgFZ1xpcmVfIa6_cQ1lAGCrZdl93Tu/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwh3w0dnYi0hoP1amwqlbZTTdfvtFWrYGDknkfpKcfqtgCH_bEqg-0oi9_tIMQOcMK8/exec";
 
     let selectedFile = null;
 
@@ -628,24 +628,52 @@ async function submitPassword() {
     document.getElementById('loadingOverlay').style.display = 'flex';
     
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${pwd}`);
+        // เพิ่มการ encodeURIComponent เพื่อป้องกันรหัสผ่านที่มีอักขระพิเศษ
+        const url = `${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${encodeURIComponent(pwd)}`;
+        
+        // ใช้โหมด no-cache เพื่อให้ดึงข้อมูลใหม่จากชีตเสมอ
+        const response = await fetch(url, { method: 'GET', cache: 'no-cache' });
         const result = await response.json();
         
         document.getElementById('loadingOverlay').style.display = 'none';
         closeModal();
 
-        if (result.success) {
+        if (result.success === true) { // เช็คค่าที่เป็น true จริงๆ
             if (currentPwdType === 'approve') {
                 showView('approveView');
                 fetchApproveList();
             } else {
-                executeDelete(currentDeleteId); // เรียกฟังก์ชันลบจริง
+                // ต้องมีฟังก์ชัน executeDelete นี้ด้วยนะครับ (ถ้ายังไม่มีให้เพิ่มด้านล่าง)
+                executeDelete(currentDeleteId); 
             }
         } else {
-            alert("❌ รหัสผ่านไม่ถูกต้องสำหรับสิทธิ์นี้");
+            alert("❌ รหัสผ่านไม่ถูกต้อง");
         }
     } catch (e) {
-        alert("เกิดข้อผิดพลาดในการตรวจสอบ");
+        console.error(e);
+        alert("เกิดข้อผิดพลาด: ระบบไม่สามารถเชื่อมต่อกับ Google Script ได้");
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+
+// เพิ่มฟังก์ชันลบจริง (ถ้าในโค้ดเดิมคุณยังไม่มี)
+async function executeDelete(fileId) {
+    if(!confirm("คุณแน่ใจนะว่าจะลบไฟล์นี้อย่างถาวร?")) return;
+    
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "delete", fileId: fileId })
+        });
+        const res = await response.json();
+        if(res.result === "success") {
+            alert("ลบไฟล์เรียบร้อยแล้ว");
+            fetchStatus(); // รีเฟรชตาราง
+        }
+    } catch(e) {
+        alert("ลบไม่สำเร็จ: " + e.message);
+    } finally {
         document.getElementById('loadingOverlay').style.display = 'none';
     }
 }
