@@ -303,7 +303,7 @@
 
 <script>
     // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdIP3QLic39xEll8NMVH5K-BB56bcTT_V52k0h0Aj_X_AJLDvFZeF9BdEXF5RU3mri/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz01ipxO6iLaVfbWEODUjJ8-j3cVhQvzkxzUKwiayuF0t4yZkP-SIVJN2yRknkVm-O2/exec";
 
     let selectedFile = null;
 
@@ -649,7 +649,7 @@ async function submitPassword() {
         document.getElementById('loadingOverlay').style.display = 'none';
 
         // เช็คผลลัพธ์ (ต้องเป็น true เท่านั้น)
-        if (result.success === true || result.success === "true") {
+        if (String(result.success).toLowerCase() === "true") {
             closeModal();
             if (currentPwdType === 'approve') {
                 showView('approveView');
