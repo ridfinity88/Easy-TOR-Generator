@@ -541,7 +541,7 @@ try {
 
     // พิกัด x, y ปรับตามความเหมาะสม
     firstPage.drawImage(stampImg, { 
-        x: 100, 
+        x: 105, 
         y: 130, 
         width: displayWidth, 
         height: displayHeight 
@@ -555,7 +555,7 @@ try {
             // 3. ใส่วันที่ (พ.ศ.)
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            firstPage.drawText(dateStr, { x: 140, y: 130, size: 7 });
+            firstPage.drawText(dateStr, { x: 140, y: 100, size: 7 });
 
             payload.pdfBase64 = await pdfDoc.saveAsBase64();
         }
