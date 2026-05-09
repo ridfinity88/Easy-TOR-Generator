@@ -281,37 +281,20 @@
     let selectedFile = null;
 
     function showView(id) {
-    // 1. ซ่อนทุกหน้า และแสดงหน้าทีเลือก (ของเดิม)
+    // --- ส่วนที่แก้ไข: ล้างค่าหน้าส่งไฟล์ทุกครั้งที่มีการเปลี่ยนหน้า ---
+    resetSendForm(); 
+
+    // 1. ซ่อนทุกหน้า และแสดงหน้าทีเลือก
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const targetView = document.getElementById(id);
+    if (targetView) targetView.classList.add('active');
 
-    // 2. ส่วนที่เพิ่มใหม่: ถ้าเป็นการเปิดหน้า 'sendView' ให้ล้างค่าไฟล์เก่าทิ้งทันที
-    if (id === 'sendView') {
-        resetSendForm();
+    // 2. เงื่อนไขเพิ่มเติมสำหรับหน้าอื่นๆ
+    if (id === 'statusView') {
+        fetchStatus();
     }
-}
-
-// ฟังก์ชันสำหรับล้างค่าหน้าส่งไฟล์
-function resetSendForm() {
-    selectedFile = null; // ล้างค่าตัวแปรไฟล์ในหน่วยความจำ
-    
-    const fileInput = document.getElementById('fileInput');
-    if (fileInput) fileInput.value = ""; // ล้างค่าใน input file
-
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    if (fileNameDisplay) {
-        fileNameDisplay.innerText = "";
-        fileNameDisplay.style.display = "none"; // ซ่อนชื่อไฟล์ที่เคยโชว์
-    }
-
-    const uploadLabel = document.getElementById('uploadLabel');
-    if (uploadLabel) {
-        uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่"; // คืนค่าข้อความเริ่มต้น
-    }
-
-    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
-    if (finalSubmitBtn) {
-        finalSubmitBtn.style.display = "none"; // ซ่อนปุ่มส่ง
+    if (id === 'approveView') {
+        fetchApproveList();
     }
 }
 
@@ -381,8 +364,33 @@ async function uploadToDrive() {
 
 // และอย่าลืมแก้ฟังก์ชัน resetSendForm ให้ล้าง selectedFiles = [] ด้วยครับ
 function resetSendForm() {
+    // 1. ล้างตัวแปร Array ที่เก็บไฟล์ในหน่วยความจำ
     selectedFiles = []; 
-    // ... code ส่วนที่เหลือเหมือนเดิม ...
+    
+    // 2. ล้างค่าใน input file element (เพื่อให้ Browser ลืมไฟล์ที่เคยเลือกไว้)
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.value = ""; 
+    }
+
+    // 3. รีเซ็ตการแสดงผลชื่อไฟล์บนหน้าจอ
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    if (fileNameDisplay) {
+        fileNameDisplay.innerText = "";
+        fileNameDisplay.style.display = "none";
+    }
+
+    // 4. คืนค่าข้อความคำแนะนำในช่อง Upload
+    const uploadLabel = document.getElementById('uploadLabel');
+    if (uploadLabel) {
+        uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)";
+    }
+
+    // 5. ซ่อนปุ่มส่งอนุมัติ
+    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+    if (finalSubmitBtn) {
+        finalSubmitBtn.style.display = "none";
+    }
 }
 
     // ... ส่วนของ generatePDF (คงเดิมจากเวอร์ชันที่แล้วของคุณ) ...
