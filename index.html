@@ -535,13 +535,13 @@ try {
     // --- ส่วนที่แก้ไข: คำนวณขนาดตามสัดส่วนเดิม ---
     // ใช้ฟังก์ชัน scale เพื่อกำหนดขนาด (เช่น 0.2 คือ 20% ของขนาดจริง)
     // หรือถ้าต้องการกำหนดความกว้างคงที่แต่ให้ความสูงปรับตามอัตโนมัติ
-    const displayWidth = 80; // กำหนดความกว้างที่ต้องการ (หน่วยเป็น point)
+    const displayWidth = 100; // กำหนดความกว้างที่ต้องการ (หน่วยเป็น point)
     const scaleFactor = displayWidth / stampImg.width;
     const displayHeight = stampImg.height * scaleFactor;
 
     // พิกัด x, y ปรับตามความเหมาะสม
     firstPage.drawImage(stampImg, { 
-        x: 120, 
+        x: 100, 
         y: 70, 
         width: displayWidth, 
         height: displayHeight 
@@ -555,7 +555,7 @@ try {
             // 3. ใส่วันที่ (พ.ศ.)
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            firstPage.drawText(dateStr, { x: 120, y: 55, size: 8 });
+            firstPage.drawText(dateStr, { x: 120, y: 55, size: 7 });
 
             payload.pdfBase64 = await pdfDoc.saveAsBase64();
         }
