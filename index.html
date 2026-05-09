@@ -555,7 +555,7 @@ try {
             // 3. ใส่วันที่ (พ.ศ.)
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-            firstPage.drawText(dateStr, { x: 142, y: 108, size: 7 });
+            firstPage.drawText(dateStr, { x: 145, y: 105, size: 7 });
 
             payload.pdfBase64 = await pdfDoc.saveAsBase64();
         }
