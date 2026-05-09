@@ -193,6 +193,7 @@
             <button class="menu-btn" onclick="showView('createView')">สร้าง TOR</button>
             <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
             <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
+            <button class="menu-btn" onclick="showView('debugView')">DEBUG PASSWORD</button>
         </div>
     </div>
 </div>
@@ -299,6 +300,52 @@
     </div>
 </div>
 
+
+/////////////////////
+<!-- DEBUG VIEW -->
+<div id="debugView" class="view">
+    <div class="card" style="max-width:700px; width:100%; margin:auto;">
+
+        <h2>DEBUG PASSWORDS</h2>
+
+        <p>ตรวจสอบค่าที่ดึงมาจาก Google Sheet</p>
+
+        <button class="action-btn" onclick="loadDebugPasswords()">
+            โหลดข้อมูลรหัส
+        </button>
+
+        <div style="
+            margin-top:20px;
+            text-align:left;
+            background:#0f172a;
+            color:#22c55e;
+            padding:15px;
+            border-radius:12px;
+            max-height:500px;
+            overflow:auto;
+            font-family:monospace;
+            white-space:pre-wrap;
+        " id="debugOutput">
+
+ยังไม่มีข้อมูล
+
+        </div>
+
+        <button class="action-btn"
+            style="background:#64748b; margin-top:20px;"
+            onclick="showView('homeView')">
+
+            กลับหน้าหลัก
+
+        </button>
+
+    </div>
+</div>
+
+/////////////////////
+
+
+    
 <div id="capture-container"><div id="box1" class="render-box"></div><div id="box2" class="render-box"></div><div id="box3" class="render-box"></div><div id="box4" class="render-box"></div></div>
 
 <script>
@@ -696,7 +743,50 @@ async function executeDelete(fileId) {
 }
 
 
-    
+    // ==================================================
+// DEBUG PASSWORD VIEW
+// ==================================================
+async function loadDebugPasswords() {
+
+    const output = document.getElementById('debugOutput');
+
+    output.innerText = "กำลังโหลดข้อมูล...";
+
+    try {
+
+        const response = await fetch(
+            SCRIPT_URL + '?action=debugPasswords'
+        );
+
+        const data = await response.json();
+
+        let text = "";
+
+        data.forEach(item => {
+
+            text +=
+`ROW ${item.row}
+
+A${item.row} = ${item.A}
+
+B${item.row} = ${item.B}
+
+--------------------------------
+
+`;
+
+        });
+
+        output.innerText = text;
+
+    } catch (err) {
+
+        output.innerText =
+            "ERROR:\n\n" + err;
+
+        console.error(err);
+    }
+}
     
 </script>
 
