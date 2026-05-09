@@ -525,25 +525,31 @@ async function processDecision(fileId, fileUrl, status) {
             const firstPage = pdfDoc.getPages()[0];
 
             // 2. ใส่ตราประทับ (ใช้ลิงก์รูปภาพโดยตรง)
-            // 2. ใส่ตราประทับ
-const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH'; // ลิงก์ Direct Download
+// 2. ใส่ตราประทับ
+const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
 try {
     const imgResponse = await fetch(stampUrl);
     const imgBytes = await imgResponse.arrayBuffer();
-    
-    // ตรวจสอบว่าเป็น PNG หรือ JPG (แนะนำให้ใช้ PNG โปร่งแสงจะสวยกว่าครับ)
-    const stampImg = await pdfDoc.embedPng(imgBytes); 
-    
-    // วาดรูปลงใน PDF
+    const stampImg = await pdfDoc.embedPng(imgBytes);
+
+    // --- ส่วนที่แก้ไข: คำนวณขนาดตามสัดส่วนเดิม ---
+    // ใช้ฟังก์ชัน scale เพื่อกำหนดขนาด (เช่น 0.2 คือ 20% ของขนาดจริง)
+    // หรือถ้าต้องการกำหนดความกว้างคงที่แต่ให้ความสูงปรับตามอัตโนมัติ
+    const displayWidth = 80; // กำหนดความกว้างที่ต้องการ (หน่วยเป็น point)
+    const scaleFactor = displayWidth / stampImg.width;
+    const displayHeight = stampImg.height * scaleFactor;
+
+    // พิกัด x, y ปรับตามความเหมาะสม
     firstPage.drawImage(stampImg, { 
         x: 420, 
         y: 70, 
-        width: 80, 
-        height: 80 
+        width: displayWidth, 
+        height: displayHeight 
     });
+    // ---------------------------------------
+
 } catch (e) { 
     console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
-    // ถ้าโหลดรูปไม่ได้ ระบบจะยังทำงานต่อได้โดยมีแค่วันที่ เพื่อไม่ให้กระบวนการหยุดชะงัก
 }
 
             // 3. ใส่วันที่ (พ.ศ.)
