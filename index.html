@@ -525,13 +525,26 @@ async function processDecision(fileId, fileUrl, status) {
             const firstPage = pdfDoc.getPages()[0];
 
             // 2. ใส่ตราประทับ (ใช้ลิงก์รูปภาพโดยตรง)
-            const stampUrl = 'https://docs.google.com/uc?export=download&id=1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
-            try {
-                const imgBytes = await fetch(stampUrl).then(res => res.arrayBuffer());
-                const stampImg = await pdfDoc.embedPng(imgBytes);
-                // พิกัด x, y (หน่วยเป็น points) ปรับตามความเหมาะสมของไฟล์คุณ
-                firstPage.drawImage(stampImg, { x: 420, y: 70, width: 80, height: 80 });
-            } catch (e) { console.error("ใส่รูปไม่ได้:", e); }
+            // 2. ใส่ตราประทับ
+const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH'; // ลิงก์ Direct Download
+try {
+    const imgResponse = await fetch(stampUrl);
+    const imgBytes = await imgResponse.arrayBuffer();
+    
+    // ตรวจสอบว่าเป็น PNG หรือ JPG (แนะนำให้ใช้ PNG โปร่งแสงจะสวยกว่าครับ)
+    const stampImg = await pdfDoc.embedPng(imgBytes); 
+    
+    // วาดรูปลงใน PDF
+    firstPage.drawImage(stampImg, { 
+        x: 420, 
+        y: 70, 
+        width: 80, 
+        height: 80 
+    });
+} catch (e) { 
+    console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
+    // ถ้าโหลดรูปไม่ได้ ระบบจะยังทำงานต่อได้โดยมีแค่วันที่ เพื่อไม่ให้กระบวนการหยุดชะงัก
+}
 
             // 3. ใส่วันที่ (พ.ศ.)
             const now = new Date();
