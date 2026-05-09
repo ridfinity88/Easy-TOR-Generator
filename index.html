@@ -758,26 +758,13 @@ async function loadDebugPasswords() {
             SCRIPT_URL + '?action=debugPasswords'
         );
 
-        const data = await response.json();
+        const text = await response.text();
 
-        let text = "";
-
-        data.forEach(item => {
-
-            text +=
-`ROW ${item.row}
-
-A${item.row} = ${item.A}
-
-B${item.row} = ${item.B}
-
---------------------------------
-
-`;
-
-        });
+        console.log(text);
 
         output.innerText = text;
+
+        return;
 
     } catch (err) {
 
