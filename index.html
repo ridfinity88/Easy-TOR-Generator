@@ -170,7 +170,7 @@
     </div>
 </div>
 
-<!-- Send View -->
+<!-- ค้นหาส่วน sendView ในโค้ดของคุณแล้วแก้ตามนี้ -->
 <div id="sendView" class="view">
     <div class="card">
         <h2>ส่ง TOR เข้าสู่ระบบ</h2>
@@ -178,25 +178,18 @@
         
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
-            <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
-            <div id="fileNameDisplay" class="file-info"></div>
-            <input type="file" id="fileInput" hidden accept="application/pdf" onchange="handleFile(this)">
+            <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)</div>
+            <!-- ปรับ CSS ตรงนี้เพิ่ม white-space เพื่อให้แสดงชื่อไฟล์หลายบรรทัดได้สวยงาม -->
+            <div id="fileNameDisplay" class="file-info" style="display: none; white-space: pre-line; text-align: left;"></div>
+            <!-- เพิ่ม multiple เข้าไปตรงนี้ -->
+            <input type="file" id="fileInput" hidden accept="application/pdf" multiple onchange="handleFile(this)">
         </div>
 
         <button id="finalSubmitBtn" class="action-btn" style="display: none;" onclick="uploadToDrive()">ส่งอนุมัติเอกสาร</button>
         
-        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
-<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <!-- เปลี่ยนปุ่มกลับหน้าหลักเป็นแบบปุ่มกดตามที่ต้องการ -->
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
-</div>
-
-    <!-- ส่วนใน sendView -->
-<div class="upload-area" onclick="document.getElementById('fileInput').click()">
-    <div style="font-size: 40px; margin-bottom: 10px;">📂</div>
-    <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)</div>
-    <div id="fileNameDisplay" class="file-info" style="white-space: pre-line;"></div>
-    <!-- เพิ่ม multiple และตรวจสอบ accept -->
-    <input type="file" id="fileInput" hidden accept=".pdf" multiple onchange="handleFile(this)">
 </div>
 
 <!-- Create View -->
