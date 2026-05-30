@@ -189,11 +189,24 @@
         <p>ยินดีต้อนรับสู่ระบบจัดการเอกสาร</p>
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
-            <button class="menu-btn" onclick="showView('templateView')">สร้าง TOR</button>
+            <button class="menu-btn" onclick="showView('creatorCheckView')">สร้าง TOR</button>
             <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
             <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
             <button class="menu-btn" onclick="showView('debugView')">@MIN</button>
         </div>
+    </div>
+</div>
+
+<div id="creatorCheckView" class="view">
+    <div class="card">
+        <h2>ระบุข้อมูลผู้สร้าง TOR</h2>
+        <p>กรุณาระบุชื่อผู้สร้างเพื่อดึงข้อมูลจากระบบ</p>
+        <div class="input-group">
+            <label>สร้าง TOR โดย</label>
+            <input type="text" id="creatorInput" placeholder="พิมพ์ชื่อผู้สร้าง TOR">
+        </div>
+        <button class="action-btn" onclick="verifyCreator()">ถัดไป</button>
+        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -206,7 +219,7 @@
             <button class="menu-btn" onclick="showView('createView_t2')">TOR + แนบภาพ</button>
             <button class="menu-btn" onclick="showView('createView_t3')">TOR + แนบภาพ + ใบ JOB</button>
         </div>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('creatorCheckView')">ย้อนกลับ</button>
     </div>
 </div>
 
@@ -305,7 +318,7 @@
 
 <div id="statusView" class="view">
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
-        <h2>สถานะการส่ง TOR</h2>
+        <h2>定態การส่ง TOR</h2>
         <p>แสดงรายการล่าสุด 30 รายการ</p>
         
         <button class="action-btn" onclick="fetchStatus()" style="width: auto; padding: 8px 16px; margin-bottom: 10px; font-size: 0.8rem;">🔄 รีเฟรชข้อมูล</button>
@@ -370,6 +383,10 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0BNwou1JteLjlo6mGABrZmv6hpC5EMucPdQaEdWGcNVJiMqh-R_AZ7WEvim0UKQYJfw/exec";
 
     let selectedFiles = [];
+    
+    // ตัวแปรส่วนกลางสำหรับเก็บข้อมูลผู้สร้างและข้อมูลที่ดึงมาจาก Sheet คอลัมน์ D, E, F, G
+    let globalCreatorName = "";
+    let globalSheetData = { d: "", e: "", f: "", g: "" };
 
     function showView(id) {
         resetSendForm(); 
@@ -383,6 +400,44 @@
         }
         if (id === 'approveView') {
             fetchApproveList();
+        }
+    }
+
+    // ฟังก์ชันใหม่: ตรวจสอบรายชื่อผู้สร้าง TOR จาก Google Sheet
+    async function verifyCreator() {
+        const creatorInput = document.getElementById('creatorInput');
+        const nameValue = creatorInput.value.trim();
+        
+        if (!nameValue) {
+            alert("กรุณากรอกข้อมูลผู้สร้าง TOR");
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingText').innerText = "กำลังตรวจสอบข้อมูลผู้สร้าง TOR...";
+
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getCreatorData&creator=${encodeURIComponent(nameValue)}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // เก็บค่าลงตัวแปร Global ไว้ใช้งานตอนสร้าง PDF
+                globalCreatorName = nameValue;
+                globalSheetData.d = result.data.d || "";
+                globalSheetData.e = result.data.e || "";
+                globalSheetData.f = result.data.f || "";
+                globalSheetData.g = result.data.g || "";
+                
+                document.getElementById('loadingOverlay').style.display = 'none';
+                showView('templateView'); // ผ่านไปหน้าเลือก Template
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert("❌ ไม่มีข้อมูลผู้สร้าง TOR");
+            }
+        } catch (err) {
+            console.error(err);
+            document.getElementById('loadingOverlay').style.display = 'none';
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อตรวจสอบผู้สร้าง");
         }
     }
 
@@ -531,6 +586,26 @@
                 text = text.substring(38);
                 currentY += 35;
             }
+
+            // --- ส่วนที่เพิ่มข้อมูลเพิ่มเติม: ข้อมูลผู้สร้าง, ข้อมูล D E F G และ วันที่ปัจจุบัน ---
+            ctx.font = "normal 22px 'Sarabun', sans-serif";
+            ctx.fillStyle = "#0f172a";
+            
+            // วาดข้อมูลที่มาจากการกรอกฟอร์มแรกและดึงจากคอลัมน์ชีต (กำหนดพิกัด Y ด้านล่างเพื่อไม่ให้ทับกับข้อมูลหลัก)
+            ctx.fillText(globalCreatorName, 60, currentY + 30);
+            ctx.fillText(globalSheetData.d, 60, currentY + 65);
+            ctx.fillText(globalSheetData.e, 60, currentY + 100);
+            ctx.fillText(globalSheetData.f, 60, currentY + 135);
+            ctx.fillText(globalSheetData.g, 60, currentY + 170);
+
+            // สร้าง Format วันเดือนปีปัจจุบัน (วว/ดด/พ.ศ.สองหลักย่อ) เช่น 30/05/69
+            const now = new Date();
+            const dayStr = String(now.getDate()).padStart(2, '0');
+            const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+            const yearStr = String(now.getFullYear() + 543).slice(-2); // แปลงเป็น พ.ศ. และเอาแค่ 2 หลักท้าย
+            const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
+            
+            ctx.fillText(currentDateFormatted, 60, currentY + 205);
             
             // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
             const pngDataUrl = canvas.toDataURL('image/png');
