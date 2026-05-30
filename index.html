@@ -566,7 +566,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // กำหนดฟอนต์และสีสำหรับข้อมูลภาษาไทย (เอาหัวข้อออกทั้งหมด ใส่เฉพาะข้อความดิบที่ผู้ใช้พิมพ์เข้ามา)
-            ctx.font = "normal 10px 'Sarabun', sans-serif";
+            ctx.font = "normal 14px 'Sarabun', sans-serif";
             ctx.fillStyle = "#1e293b"; // สีตัวอักษรหลัก
             
             // เขียนข้อมูลภาษาไทยลงใน Canvas โดยหยอดเฉพาะข้อมูลดิบตามพิกัดบรรทัดเดิม
@@ -574,7 +574,7 @@
             ctx.fillText(val2, 60, 240);
             ctx.fillText(val3, 60, 300);
             
-            ctx.font = "normal 22px 'Sarabun', sans-serif";
+            ctx.font = "normal 14px 'Sarabun', sans-serif";
             ctx.fillStyle = "#334155";
             
             // ฟังก์ชันช่วยจัดบรรทัดตัวหนังสือยาวๆ ของข้อมูลเลข PR เก่า หรือรายละเอียดส่วนท้าย
@@ -588,7 +588,7 @@
             }
 
             // --- ส่วนที่เพิ่มข้อมูลเพิ่มเติม: ข้อมูลผู้สร้าง, ข้อมูล D E F G และ วันที่ปัจจุบัน ---
-            ctx.font = "normal 10px 'Sarabun', sans-serif";
+            ctx.font = "normal 14px 'Sarabun', sans-serif";
             ctx.fillStyle = "#0f172a";
             
             // วาดข้อมูลที่มาจากการกรอกฟอร์มแรกและดึงจากคอลัมน์ชีต (กำหนดพิกัด Y ด้านล่างเพื่อไม่ให้ทับกับข้อมูลหลัก)
