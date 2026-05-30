@@ -183,13 +183,14 @@
     <p style="margin-top: 15px;" id="loadingText">กรุณารอสักครู่...</p>
 </div>
 
+<!-- Home View -->
 <div id="homeView" class="view active">
     <div class="card">
         <h2>TOR Management</h2>
         <p>ยินดีต้อนรับสู่ระบบจัดการเอกสาร</p>
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
-            <button class="menu-btn" onclick="showView('templateView')">สร้าง TOR</button>
+            <button class="menu-btn" onclick="showView('createView')">สร้าง TOR</button>
             <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
             <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
             <button class="menu-btn" onclick="showView('debugView')">@MIN</button>
@@ -197,19 +198,7 @@
     </div>
 </div>
 
-<div id="templateView" class="view">
-    <div class="card">
-        <h2>เลือกรูปแบบเทมเพลต TOR</h2>
-        <p>กรุณาเลือกรูปแบบเอกสารที่ต้องการสร้าง</p>
-        <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('createView_t1')">เฉพาะหน้า TOR</button>
-            <button class="menu-btn" onclick="showView('createView_t2')">TOR + แนบภาพ</button>
-            <button class="menu-btn" onclick="showView('createView_t3')">TOR + แนบภาพ + ใบ JOB</button>
-        </div>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
-    </div>
-</div>
-
+<!-- ค้นหาส่วน sendView ในโค้ดของคุณแล้วแก้ตามนี้ -->
 <div id="sendView" class="view">
     <div class="card">
         <h2>ส่ง TOR เข้าสู่ระบบ</h2>
@@ -218,91 +207,47 @@
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
             <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)</div>
+            <!-- ปรับ CSS ตรงนี้เพิ่ม white-space เพื่อให้แสดงชื่อไฟล์หลายบรรทัดได้สวยงาม -->
             <div id="fileNameDisplay" class="file-info" style="display: none; white-space: pre-line; text-align: left;"></div>
+            <!-- เพิ่ม multiple เข้าไปตรงนี้ -->
             <input type="file" id="fileInput" hidden accept="application/pdf" multiple onchange="handleFile(this)">
         </div>
 
         <button id="finalSubmitBtn" class="action-btn" style="display: none;" onclick="uploadToDrive()">ส่งอนุมัติเอกสาร</button>
         
+        <!-- เปลี่ยนปุ่มกลับหน้าหลักเป็นแบบปุ่มกดตามที่ต้องการ -->
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
-<div id="createView_t1" class="view">
+<!-- Create View -->
+<div id="createView" class="view">
     <div class="card">
         <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> เฉพาะหน้า TOR (Template 1)</p>
+        <p>กรอกข้อมูลเพื่อสร้างไฟล์ PDF ภาษาไทย</p>
         <div class="input-group">
             <label>ชื่อ-นามสกุล</label>
-            <input type="text" class="data-input-t1" id="input1_t1" maxlength="50" placeholder="ระบุชื่อของคุณ" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input" id="input1" maxlength="50" placeholder="ระบุชื่อของคุณ">
         </div>
         <div class="input-group">
             <label>ตำแหน่ง/แผนก</label>
-            <input type="text" class="data-input-t1" id="input2_t1" maxlength="50" placeholder="ระบุฝ่ายงาน" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input" id="input2" maxlength="50" placeholder="ระบุฝ่ายงาน">
         </div>
         <div class="input-group">
             <label>เบอร์โทรศัพท์</label>
-            <input type="text" class="data-input-t1" id="input3_t1" maxlength="50" placeholder="0XX-XXXXXXX" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input" id="input3" maxlength="50" placeholder="0XX-XXXXXXX">
         </div>
         <div class="input-group">
             <label>รายละเอียดงาน</label>
-            <input type="text" class="data-input-t1" id="input4_t1" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input" id="input4" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ">
         </div>
-        <button id="downloadBtn_t1" class="action-btn" disabled onclick="generatePDF('template1.pdf', 't1')">กรุณากรอกข้อมูลให้ครบ</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
+        <button id="downloadBtn" class="action-btn" disabled>กรุณากรอกข้อมูลให้ครบ</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
-<div id="createView_t2" class="view">
-    <div class="card">
-        <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> TOR + แนบภาพ (Template 2)</p>
-        <div class="input-group">
-            <label>ชื่อ-นามสกุล</label>
-            <input type="text" class="data-input-t2" id="input1_t2" maxlength="50" placeholder="ระบุชื่อของคุณ" oninput="checkFormValid('t2')">
-        </div>
-        <div class="input-group">
-            <label>ตำแหน่ง/แผนก</label>
-            <input type="text" class="data-input-t2" id="input2_t2" maxlength="50" placeholder="ระบุฝ่ายงาน" oninput="checkFormValid('t2')">
-        </div>
-        <div class="input-group">
-            <label>เบอร์โทรศัพท์</label>
-            <input type="text" class="data-input-t2" id="input3_t2" maxlength="50" placeholder="0XX-XXXXXXX" oninput="checkFormValid('t2')">
-        </div>
-        <div class="input-group">
-            <label>รายละเอียดงาน</label>
-            <input type="text" class="data-input-t2" id="input4_t2" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ" oninput="checkFormValid('t2')">
-        </div>
-        <button id="downloadBtn_t2" class="action-btn" disabled onclick="generatePDF('template2.pdf', 't2')">กรุณากรอกข้อมูลให้ครบ</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
-    </div>
-</div>
-
-<div id="createView_t3" class="view">
-    <div class="card">
-        <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> TOR + แนบภาพ + ใบ JOB (Template 3)</p>
-        <div class="input-group">
-            <label>ชื่อ-นามสกุล</label>
-            <input type="text" class="data-input-t3" id="input1_t3" maxlength="50" placeholder="ระบุชื่อของคุณ" oninput="checkFormValid('t3')">
-        </div>
-        <div class="input-group">
-            <label>ตำแหน่ง/แผนก</label>
-            <input type="text" class="data-input-t3" id="input2_t3" maxlength="50" placeholder="ระบุฝ่ายงาน" oninput="checkFormValid('t3')">
-        </div>
-        <div class="input-group">
-            <label>เบอร์โทรศัพท์</label>
-            <input type="text" class="data-input-t3" id="input3_t3" maxlength="50" placeholder="0XX-XXXXXXX" oninput="checkFormValid('t3')">
-        </div>
-        <div class="input-group">
-            <label>รายละเอียดงาน</label>
-            <input type="text" class="data-input-t3" id="input4_t3" maxlength="50" placeholder="ระบุวัตถุประสงค์สั้นๆ" oninput="checkFormValid('t3')">
-        </div>
-        <button id="downloadBtn_t3" class="action-btn" disabled onclick="generatePDF('template3.pdf', 't3')">กรุณากรอกข้อมูลให้ครบ</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
-    </div>
-</div>
-
+<!-- อื่นๆ (หน้าเปล่า) -->
 <div id="statusView" class="view">
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
         <h2>สถานะการส่ง TOR</h2>
@@ -326,10 +271,10 @@
             </table>
         </div>
         
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
-
 <div id="approveView" class="view">
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
         <h2 style="color: var(--primary);">การพิจารณาอนุมัติ TOR</h2>
@@ -350,485 +295,481 @@
             </table>
         </div>
         
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <!-- แทนที่ปุ่ม back-btn เดิมในทุกๆ หน้า -->
+<button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
+
+<!-- DEBUG VIEW -->
 <div id="debugView" class="view">
     <div class="card" style="max-width:700px; width:100%; margin:auto;">
+
         <h2>@MIN</h2>
+
         <p>ตรวจสอบค่าที่ดึงมาจาก Google Sheet</p>
-        <button class="action-btn" onclick="loadDebugPasswords()">โหลดข้อมูลรหัส</button>
-        <div style="margin-top:20px; text-align:left; background:#0f172a; color:#22c55e; padding:15px; border-radius:12px; max-height:500px; overflow:auto; font-family:monospace; white-space:pre-wrap;" id="debugOutput">ยังไม่มีข้อมูล</div>
-        <button class="action-btn" style="background:#64748b; margin-top:20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+
+        <button class="action-btn" onclick="loadDebugPasswords()">
+            โหลดข้อมูลรหัส
+        </button>
+
+        <div style="
+            margin-top:20px;
+            text-align:left;
+            background:#0f172a;
+            color:#22c55e;
+            padding:15px;
+            border-radius:12px;
+            max-height:500px;
+            overflow:auto;
+            font-family:monospace;
+            white-space:pre-wrap;
+        " id="debugOutput">
+
+ยังไม่มีข้อมูล
+
+        </div>
+
+        <button class="action-btn"
+            style="background:#64748b; margin-top:20px;"
+            onclick="showView('homeView')">
+
+            กลับหน้าหลัก
+
+        </button>
+
     </div>
 </div>
     
 <div id="capture-container"><div id="box1" class="render-box"></div><div id="box2" class="render-box"></div><div id="box3" class="render-box"></div><div id="box4" class="render-box"></div></div>
 
 <script>
+    // ** เปลี่ยน URL ตรงนี้ด้วย Web App URL จาก Google Apps Script ของคุณ **
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0BNwou1JteLjlo6mGABrZmv6hpC5EMucPdQaEdWGcNVJiMqh-R_AZ7WEvim0UKQYJfw/exec";
 
-    let selectedFiles = [];
+    let selectedFile = null;
 
     function showView(id) {
-        resetSendForm(); 
+    // --- ส่วนที่แก้ไข: ล้างค่าหน้าส่งไฟล์ทุกครั้งที่มีการเปลี่ยนหน้า ---
+    resetSendForm(); 
 
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        const targetView = document.getElementById(id);
-        if (targetView) targetView.classList.add('active');
+    // 1. ซ่อนทุกหน้า และแสดงหน้าทีเลือก
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const targetView = document.getElementById(id);
+    if (targetView) targetView.classList.add('active');
 
-        if (id === 'statusView') {
-            fetchStatus();
-        }
-        if (id === 'approveView') {
-            fetchApproveList();
-        }
+    // 2. เงื่อนไขเพิ่มเติมสำหรับหน้าอื่นๆ
+    if (id === 'statusView') {
+        fetchStatus();
     }
-
-    function handleFile(input) {
-        const files = Array.from(input.files);
-        if (files.length > 0) {
-            selectedFiles = files;
-            const names = files.map(f => "📄 " + f.name).join('\n');
-            document.getElementById('fileNameDisplay').innerText = "เตรียมส่งไฟล์:\n" + names;
-            document.getElementById('fileNameDisplay').style.display = "block";
-            document.getElementById('uploadLabel').innerText = "เปลี่ยนการเลือกไฟล์";
-            document.getElementById('finalSubmitBtn').style.display = "block";
-        }
+    if (id === 'approveView') {
+        fetchApproveList();
     }
+}
 
-    async function uploadToDrive() {
-        if (selectedFiles.length === 0) return;
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        let successCount = 0;
-        
-        for (let i = 0; i < selectedFiles.length; i++) {
-            const file = selectedFiles[i];
-            document.getElementById('loadingText').innerText = `กำลังอัปโหลดไฟล์ (${i + 1}/${selectedFiles.length}): ${file.name}`;
 
-            try {
-                const base64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-                    reader.readAsDataURL(file);
-                });
+    let selectedFiles = []; // เปลี่ยนจาก selectedFile เป็น Array
 
-                const data = {
-                    base64: base64,
-                    type: file.type,
-                    name: file.name
-                };
-
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                if (result.result === "success") successCount++;
-
-            } catch (err) {
-                console.error("Error uploading:", file.name, err);
-            }
-        }
-
-        document.getElementById('loadingOverlay').style.display = 'none';
-        alert(`🚀 ส่งสำเร็จทั้งหมด ${successCount} จาก ${selectedFiles.length} ไฟล์`);
-        showView('homeView');
+function handleFile(input) {
+    const files = Array.from(input.files);
+    if (files.length > 0) {
+        selectedFiles = files;
+        // แสดงรายชื่อไฟล์ทั้งหมดที่เลือก
+        const names = files.map(f => "📄 " + f.name).join('\n');
+        document.getElementById('fileNameDisplay').innerText = "เตรียมส่งไฟล์:\n" + names;
+        document.getElementById('fileNameDisplay').style.display = "block";
+        document.getElementById('uploadLabel').innerText = "เปลี่ยนการเลือกไฟล์";
+        document.getElementById('finalSubmitBtn').style.display = "block";
     }
+}
 
-    function resetSendForm() {
-        selectedFiles = []; 
-        const fileInput = document.getElementById('fileInput');
-        if (fileInput) { fileInput.value = ""; }
-
-        const fileNameDisplay = document.getElementById('fileNameDisplay');
-        if (fileNameDisplay) {
-            fileNameDisplay.innerText = "";
-            fileNameDisplay.style.display = "none";
-        }
-
-        const uploadLabel = document.getElementById('uploadLabel');
-        if (uploadLabel) { uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)"; }
-
-        const finalSubmitBtn = document.getElementById('finalSubmitBtn');
-        if (finalSubmitBtn) { finalSubmitBtn.style.display = "none"; }
-    }
-
-    // ฟังก์ชันตรวจสอบการกรอกข้อมูลแยกตามหน้าเทมเพลต
-    function checkFormValid(suffix) {
-        const inputs = document.querySelectorAll(`.data-input-${suffix}`);
-        let allFilled = true;
-        inputs.forEach(input => {
-            if (!input.value.trim()) allFilled = false;
-        });
-
-        const btn = document.getElementById(`downloadBtn_${suffix}`);
-        if (btn) {
-            if (allFilled) {
-                btn.disabled = false;
-                btn.innerText = "ดาวน์โหลดเอกสาร PDF";
-            } else {
-                btn.disabled = true;
-                btn.innerText = "กรุณากรอกข้อมูลให้ครบ";
-            }
-        }
-    }
-
-    // ฟังก์ชันสร้าง PDF โดยใช้เทคนิคแปลงฟอนต์ภาษาไทยเป็นภาพ PNG โปร่งใส วางลงบนหน้าเอกสารโดยตรงแบบไม่พึ่งไฟล์ภายนอก
-    async function generatePDF(templateName, suffix) {
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = `กำลังประมวลผลและสร้างไฟล์ PDF...`;
+async function uploadToDrive() {
+    if (selectedFiles.length === 0) return;
+    
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    let successCount = 0;
+    
+    // วนลูปส่งทีละไฟล์
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        document.getElementById('loadingText').innerText = `กำลังอัปโหลดไฟล์ (${i + 1}/${selectedFiles.length}): ${file.name}`;
 
         try {
-            // ดึงค่าข้อมูลจากหน้า Input ที่ระบุ suffix
-            const val1 = document.getElementById(`input1_${suffix}`).value;
-            const val2 = document.getElementById(`input2_${suffix}`).value;
-            const val3 = document.getElementById(`input3_${suffix}`).value;
-            const val4 = document.getElementById(`input4_${suffix}`).value;
-
-            // แก้ไขปัญหาการโหลดไฟล์ภายนอกล้มเหลว: สร้าง PDF เปล่าขนาด A4 (595 x 842 พิกัดมาตรฐาน) ขึ้นมาเองทันที
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            const firstPage = pdfDoc.addPage([595, 842]);
-            
-            // --- ขั้นตอนการแปลงตัวอักษรภาษาไทยเป็นรูปภาพ PNG โปร่งใส ---
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // กำหนดขนาดให้สอดคล้อง (ใช้ High Resolution x2 เพื่อตัวอักษรคมชัดสูงเมื่อถูกย่อลง PDF)
-            canvas.width = 1000;
-            canvas.height = 1200;
-            
-            // เคลียร์พื้นหลังให้โปร่งใสสนิท (Transparent)
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // วาดกรอบหัวข้อเอกสารจำลองความสวยงามตามรูปแบบเทมเพลตเดิม
-            ctx.fillStyle = "#2563eb"; // สีหลักของระบบ
-            ctx.fillRect(40, 40, 920, 60);
-            
-            ctx.font = "bold 28px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#ffffff";
-            ctx.fillText("เอกสารข้อกำหนดขอบเขตงาน (TOR) - " + templateName.split('.')[0].toUpperCase(), 60, 82);
-            
-            // กำหนดฟอนต์และสีสำหรับข้อมูลภายในฟอร์มภาษาไทย
-            ctx.font = "normal 24px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#1e293b"; // สีตัวอักษรหลัก
-            
-            // เขียนข้อมูลภาษาไทยลงใน Canvas เพื่อหลีกเลี่ยงสระลอยและฟอนต์ไม่โหลด
-            ctx.fillText("ชื่อ-นามสกุลผู้ส่ง :  " + val1, 60, 180);
-            ctx.fillText("ตำแหน่ง / แผนก : " + val2, 60, 240);
-            ctx.fillText("เบอร์โทรศัพท์ติดต่อ : " + val3, 60, 300);
-            
-            ctx.font = "bold 24px 'Sarabun', sans-serif";
-            ctx.fillText("รายละเอียดและวัตถุประสงค์ของงาน:", 60, 380);
-            
-            ctx.font = "normal 22px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#334155";
-            
-            // ฟังก์ชันช่วยจัดบรรทัดตัวหนังสือยาวๆ ของข้อมูลรายละเอียดงานไม่ให้ทะลุจอ
-            let text = val4;
-            let currentY = 420;
-            while(text.length > 0) {
-                let chunk = text.substring(0, 38);
-                ctx.fillText(chunk, 80, currentY);
-                text = text.substring(38);
-                currentY += 35;
-            }
-            
-            // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
-            const pngDataUrl = canvas.toDataURL('image/png');
-            
-            // นำรูปภาพที่แปลงเสร็จแล้วแปลงกลับเป็น ArrayBuffer และฝังลง PDF
-            const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
-            const embeddedImg = await pdfDoc.embedPng(textImgBytes);
-            
-            // วาดภาพโปร่งใสทับลงบนหน้าเอกสาร PDF
-            firstPage.drawImage(embeddedImg, {
-                x: 30,
-                y: 100,
-                width: 535,
-                height: 642
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+                reader.readAsDataURL(file);
             });
 
-            const pdfBytes = await pdfDoc.save();
-            const blob = new Blob([pdfBytes], { type: "application/pdf" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `TOR_${templateName.split('.')[0]}_Generated.pdf`;
-            link.click();
+            const data = {
+                base64: base64,
+                type: file.type,
+                name: file.name
+            };
 
-            alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
-        } catch (error) {
-            console.error(error);
-            alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
-        } finally {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    }
-
-    async function fetchStatus() {
-        const tableBody = document.getElementById('statusTableBody');
-        tableBody.innerHTML = '<tr><td colspan="4">กำลังดึงข้อมูล...</td></tr>';
-        
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            
-            tableBody.innerHTML = '';
-            
-            if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">ไม่พบรายการเอกสาร</td></tr>';
-                return;
-            }
-
-            data.forEach(file => {
-                let statusHTML = '';
-                if (file.name.includes('Approve_')) {
-                    statusHTML = '<span class="status-badge badge-approve">✅ อนุมัติแล้ว</span>';
-                } else if (file.name.includes('Reject_')) {
-                    statusHTML = '<span class="status-badge badge-reject">❌ ไม่อนุมัติ</span>';
-                } else {
-                    statusHTML = '<span class="status-badge badge-wait">⏳ รออนุมัติ</span>';
-                }
-
-                const row = `
-                    <tr>
-                        <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
-                        <td style="text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</td>
-                        <td>${statusHTML}</td>
-                        <td><span class="status-icon" onclick="deleteFile('${file.id}')">🗑️</span></td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        } catch (err) {
-            tableBody.innerHTML = '<tr><td colspan="4">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-        }
-    }
-
-    async function fetchApproveList() {
-        const tableBody = document.getElementById('approveTableBody');
-        tableBody.innerHTML = '<tr><td colspan="3">กำลังโหลด...</td></tr>';
-        
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            
-            const filteredData = data.filter(file => 
-                !file.name.startsWith('Approve_') && !file.name.startsWith('Reject_')
-            );
-
-            tableBody.innerHTML = '';
-            if (filteredData.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3">ไม่มีรายการค้างพิจารณา ✅</td></tr>';
-                return;
-            }
-
-            filteredData.forEach(file => {
-                const row = `
-                    <tr>
-                        <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
-                        <td style="text-align: left;">${file.name}</td>
-                        <td>
-                            <button class="btn-approve" onclick="processDecision('${file.id}', '${file.url}', 'approve')">อนุมัติ</button>
-                            <button class="btn-reject" onclick="processDecision('${file.id}', '${file.url}', 'reject')">ไม่ผ่าน</button>
-                        </td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        } catch (err) {
-            tableBody.innerHTML = '<tr><td colspan="3">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-        }
-    }
-
-    async function processDecision(fileId, fileUrl, status) {
-        if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
-
-        try {
-            let payload = { action: "approve_process", fileId: fileId, status: status };
-
-            if (status === 'approve') {
-                const resBase64 = await fetch(`${SCRIPT_URL}?action=getFileBase64&fileId=${fileId}`);
-                const base64Content = await resBase64.text();
-                
-                const pdfBytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
-                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-                const firstPage = pdfDoc.getPages()[0];
-
-                const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
-                try {
-                    const imgResponse = await fetch(stampUrl);
-                    const imgBytes = await imgResponse.arrayBuffer();
-                    const stampImg = await pdfDoc.embedPng(imgBytes);
-
-                    const displayWidth = 110; 
-                    const scaleFactor = displayWidth / stampImg.width;
-                    const displayHeight = stampImg.height * scaleFactor;
-
-                    firstPage.drawImage(stampImg, { 
-                        x: 105, 
-                        y: 130, 
-                        width: displayWidth, 
-                        height: displayHeight 
-                    });
-                } catch (e) { 
-                    console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
-                }
-
-                const now = new Date();
-                const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-                firstPage.drawText(dateStr, { x: 144, y: 105, size: 7 });
-
-                payload.pdfBase64 = await pdfDoc.saveAsBase64();
-            }
-
-            const finalResponse = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            const result = await finalResponse.json();
-            if (result.result === "success") {
-                alert("🚀 อนุมัติและบันทึกรูปภาพลง PDF เรียบร้อยแล้ว!");
-                fetchApproveList();
-            }
-        } catch (err) {
-            alert("❌ เกิดข้อผิดพลาด: " + err.message);
-        } finally {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    }
-
-    let currentPwdType = ''; 
-    let currentDeleteId = '';
-
-    function togglePwd() {
-        const input = document.getElementById('modalInput');
-        const icon = document.querySelector('.toggle-password');
-        if (input.type === "password") {
-            input.type = "text";
-            icon.innerText = "🔒";
-        } else {
-            input.type = "password";
-            icon.innerText = "👁️";
-        }
-    }
-
-    function checkAuth() {
-        currentPwdType = 'approve';
-        document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
-        openModal();
-    }
-
-    async function deleteFile(fileId) {
-        currentPwdType = 'delete';
-        currentDeleteId = fileId;
-        document.getElementById('modalTitle').innerText = "รหัสยืนยันการลบ";
-        openModal();
-    }
-
-    function openModal() {
-        document.getElementById('modalInput').value = '';
-        document.getElementById('pwdModal').style.display = 'flex';
-    }
-
-    // ปรับการผูก Event ของ showView สำหรับหน้าสถานะ
-    const originalShowView = showView;
-    showView = function(id) {
-        originalShowView(id);
-        if (id === 'statusView') {
-            fetchStatus();
-        }
-    }
-
-    function closeModal() {
-        document.getElementById('pwdModal').style.display = 'none';
-    }
-
-    async function submitPassword() {
-        const pwdInput = document.getElementById('modalInput');
-        const pwd = pwdInput.value.trim();
-        
-        if (!pwd) {
-            alert("กรุณาใส่รหัสผ่าน");
-            return;
-        }
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังตรวจสอบรหัสผ่าน...";
-        
-        try {
-            const url = `${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${encodeURIComponent(pwd)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            
-            const result = await response.json();
-            document.getElementById('loadingOverlay').style.display = 'none';
-
-            if (String(result.success).toLowerCase() === "true") {
-                closeModal();
-                if (currentPwdType === 'approve') {
-                    showView('approveView');
-                    fetchApproveList();
-                } else if (currentPwdType === 'delete') {
-                    executeDelete(currentDeleteId); 
-                }
-            } else {
-                alert("❌ รหัสผ่านไม่ถูกต้องสำหรับสิทธิ์นี้");
-                pwdInput.value = ""; 
-            }
-        } catch (e) {
-            console.error("Error details:", e);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบตรวจสอบรหัสผ่าน");
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    }
-
-    async function executeDelete(fileId) {
-        if (!confirm("ยืนยันการลบไฟล์นี้ใช่หรือไม่?")) return;
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังดำเนินการลบ...";
-
-        try {
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: "delete", fileId: fileId })
+                body: JSON.stringify(data)
             });
+            
             const result = await response.json();
-            if (result.result === "success") {
-                alert("🗑️ ลบไฟล์เรียบร้อยแล้ว");
-                fetchStatus(); 
-            } else {
-                alert("❌ ลบไม่สำเร็จ: " + result.error);
-            }
+            if (result.result === "success") successCount++;
+
         } catch (err) {
-            alert("❌ เกิดข้อผิดพลาดในการส่งคำสั่งลบ");
-        } finally {
-            document.getElementById('loadingOverlay').style.display = 'none';
+            console.error("Error uploading:", file.name, err);
         }
     }
 
-    async function loadDebugPasswords() {
-        const output = document.getElementById('debugOutput');
-        output.innerText = "กำลังโหลดข้อมูล...";
-        try {
-            const response = await fetch(SCRIPT_URL + '?action=debugPasswords');
-            const text = await response.text();
-            output.innerText = text;
-            return;
-        } catch (err) {
-            output.innerText = "ERROR:\n\n" + err;
-            console.error(err);
-        }
+    document.getElementById('loadingOverlay').style.display = 'none';
+    alert(`🚀 ส่งสำเร็จทั้งหมด ${successCount} จาก ${selectedFiles.length} ไฟล์`);
+    showView('homeView');
+}
+
+// และอย่าลืมแก้ฟังก์ชัน resetSendForm ให้ล้าง selectedFiles = [] ด้วยครับ
+function resetSendForm() {
+    // 1. ล้างตัวแปร Array ที่เก็บไฟล์ในหน่วยความจำ
+    selectedFiles = []; 
+    
+    // 2. ล้างค่าใน input file element (เพื่อให้ Browser ลืมไฟล์ที่เคยเลือกไว้)
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.value = ""; 
     }
+
+    // 3. รีเซ็ตการแสดงผลชื่อไฟล์บนหน้าจอ
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    if (fileNameDisplay) {
+        fileNameDisplay.innerText = "";
+        fileNameDisplay.style.display = "none";
+    }
+
+    // 4. คืนค่าข้อความคำแนะนำในช่อง Upload
+    const uploadLabel = document.getElementById('uploadLabel');
+    if (uploadLabel) {
+        uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)";
+    }
+
+    // 5. ซ่อนปุ่มส่งอนุมัติ
+    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+    if (finalSubmitBtn) {
+        finalSubmitBtn.style.display = "none";
+    }
+}
+
+    // ... ส่วนของ generatePDF (คงเดิมจากเวอร์ชันที่แล้วของคุณ) ...
+    // ใส่ generatePDF() ที่นี่ โดยอย่าลืมเปลี่ยน templateUrl = 'template.pdf'
+
+// ฟังก์ชันดึงข้อมูลจาก Google Drive มาแสดงในตาราง
+async function fetchStatus() {
+    const tableBody = document.getElementById('statusTableBody');
+    tableBody.innerHTML = '<tr><td colspan="4">กำลังดึงข้อมูล...</td></tr>';
+    
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
+        tableBody.innerHTML = '';
+        
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4">ไม่พบรายการเอกสาร</td></tr>';
+            return;
+        }
+
+        data.forEach(file => {
+            let statusHTML = '';
+            if (file.name.includes('Approve_')) {
+                statusHTML = '<span class="status-badge badge-approve">✅ อนุมัติแล้ว</span>';
+            } else if (file.name.includes('Reject_')) {
+                statusHTML = '<span class="status-badge badge-reject">❌ ไม่อนุมัติ</span>';
+            } else {
+                statusHTML = '<span class="status-badge badge-wait">⏳ รออนุมัติ</span>';
+            }
+
+            const row = `
+                <tr>
+                    <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
+                    <td style="text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</td>
+                    <td>${statusHTML}</td>
+                    <td><span class="status-icon" onclick="deleteFile('${file.id}')">🗑️</span></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    } catch (err) {
+        tableBody.innerHTML = '<tr><td colspan="4">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+    }
+}
+
+// แก้ไขฟังก์ชัน showView เพื่อให้โหลดข้อมูลอัตโนมัติเมื่อกดเข้าหน้าสถานะ
+const originalShowView = showView;
+showView = function(id) {
+    originalShowView(id);
+    if (id === 'statusView') {
+        fetchStatus();
+    }
+}
+
+    // ฟังก์ชันดึงรายการที่ยังไม่ได้พิจารณา
+async function fetchApproveList() {
+    const tableBody = document.getElementById('approveTableBody');
+    tableBody.innerHTML = '<tr><td colspan="3">กำลังโหลด...</td></tr>';
+    
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
+        // กรองเอาเฉพาะไฟล์ที่ไม่มี Approve_ หรือ Reject_ นำหน้า
+        const filteredData = data.filter(file => 
+            !file.name.startsWith('Approve_') && !file.name.startsWith('Reject_')
+        );
+
+        tableBody.innerHTML = '';
+        if (filteredData.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="3">ไม่มีรายการค้างพิจารณา ✅</td></tr>';
+            return;
+        }
+
+        filteredData.forEach(file => {
+            const row = `
+                <tr>
+                    <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
+                    <td style="text-align: left;">${file.name}</td>
+                    <td>
+                        <button class="btn-approve" onclick="processDecision('${file.id}', '${file.url}', 'approve')">อนุมัติ</button>
+                        <button class="btn-reject" onclick="processDecision('${file.id}', '${file.url}', 'reject')">ไม่ผ่าน</button>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    } catch (err) {
+        tableBody.innerHTML = '<tr><td colspan="3">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+    }
+}
+
+// ฟังก์ชันจัดการคำตัดสิน (อนุมัติ/ไม่อนุมัติ)
+async function processDecision(fileId, fileUrl, status) {
+    if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
+
+    try {
+        let payload = { action: "approve_process", fileId: fileId, status: status };
+
+        if (status === 'approve') {
+            // 1. ดึงไฟล์จาก Google Drive มาเป็น Base64 ผ่าน Script
+            const resBase64 = await fetch(`${SCRIPT_URL}?action=getFileBase64&fileId=${fileId}`);
+            const base64Content = await resBase64.text();
+            
+            // แปลงเป็น Uint8Array ให้ pdf-lib ใช้งาน
+            const pdfBytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            const firstPage = pdfDoc.getPages()[0];
+
+            // 2. ใส่ตราประทับ (ใช้ลิงก์รูปภาพโดยตรง)
+// 2. ใส่ตราประทับ
+const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
+try {
+    const imgResponse = await fetch(stampUrl);
+    const imgBytes = await imgResponse.arrayBuffer();
+    const stampImg = await pdfDoc.embedPng(imgBytes);
+
+    // --- ส่วนที่แก้ไข: คำนวณขนาดตามสัดส่วนเดิม ---
+    // ใช้ฟังก์ชัน scale เพื่อกำหนดขนาด (เช่น 0.2 คือ 20% ของขนาดจริง)
+    // หรือถ้าต้องการกำหนดความกว้างคงที่แต่ให้ความสูงปรับตามอัตโนมัติ
+    const displayWidth = 110; // กำหนดความกว้างที่ต้องการ (หน่วยเป็น point)
+    const scaleFactor = displayWidth / stampImg.width;
+    const displayHeight = stampImg.height * scaleFactor;
+
+    // พิกัด x, y ปรับตามความเหมาะสม
+    firstPage.drawImage(stampImg, { 
+        x: 105, 
+        y: 130, 
+        width: displayWidth, 
+        height: displayHeight 
+    });
+    // ---------------------------------------
+
+} catch (e) { 
+    console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
+}
+
+            // 3. ใส่วันที่ (พ.ศ.)
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
+            firstPage.drawText(dateStr, { x: 144, y: 105, size: 7 });
+
+            payload.pdfBase64 = await pdfDoc.saveAsBase64();
+        }
+
+        // 4. ส่งไฟล์ที่แก้เสร็จแล้วกลับไปที่ Google Drive
+        const finalResponse = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        const result = await finalResponse.json();
+        if (result.result === "success") {
+            alert("🚀 อนุมัติและบันทึกรูปภาพลง PDF เรียบร้อยแล้ว!");
+            fetchApproveList();
+        }
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาด: " + err.message);
+    } finally {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+
+
+
+
+let currentPwdType = ''; // 'delete' หรือ 'approve'
+let currentDeleteId = '';
+
+function togglePwd() {
+    const input = document.getElementById('modalInput');
+    const icon = document.querySelector('.toggle-password');
+    if (input.type === "password") {
+        input.type = "text";
+        icon.innerText = "🔒";
+    } else {
+        input.type = "password";
+        icon.innerText = "👁️";
+    }
+}
+
+// แก้ไขฟังก์ชันเดิม
+function checkAuth() {
+    currentPwdType = 'approve';
+    document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
+    openModal();
+}
+
+async function deleteFile(fileId) {
+    currentPwdType = 'delete';
+    currentDeleteId = fileId;
+    document.getElementById('modalTitle').innerText = "รหัสยืนยันการลบ";
+    openModal();
+}
+
+function openModal() {
+    document.getElementById('modalInput').value = '';
+    document.getElementById('pwdModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('pwdModal').style.display = 'none';
+}
+
+async function submitPassword() {
+    const pwdInput = document.getElementById('modalInput');
+    const pwd = pwdInput.value.trim(); // ตัดช่องว่างออก
+    
+    if (!pwd) {
+        alert("กรุณาใส่รหัสผ่าน");
+        return;
+    }
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('loadingText').innerText = "กำลังตรวจสอบรหัสผ่าน...";
+    
+    try {
+        // สร้าง URL สำหรับการตรวจสอบ
+        const url = `${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${encodeURIComponent(pwd)}`;
+        
+        // ใช้ fetch แบบปกติ (Web App ของ Google Script จะ Redirect อัตโนมัติ)
+        const response = await fetch(url);
+        
+        // ตรวจสอบว่า Response โอเคไหม
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const result = await response.json();
+        console.log("ตรวจสอบรหัสสำเร็จ:", result); // ดูผลใน Console (F12)
+
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        // เช็คผลลัพธ์ (ต้องเป็น true เท่านั้น)
+        if (String(result.success).toLowerCase() === "true") {
+            closeModal();
+            if (currentPwdType === 'approve') {
+                showView('approveView');
+                fetchApproveList();
+            } else if (currentPwdType === 'delete') {
+                // เรียกฟังก์ชันลบจริง
+                executeDelete(currentDeleteId); 
+            }
+        } else {
+            alert("❌ รหัสผ่านไม่ถูกต้องสำหรับสิทธิ์นี้");
+            pwdInput.value = ""; // ล้างรหัสที่ผิดออก
+        }
+    } catch (e) {
+        console.error("Error details:", e);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบตรวจสอบรหัสผ่าน");
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+
+// และเพิ่มฟังก์ชัน executeDelete นี้ต่อท้าย (กรณีที่คุณยังไม่มีในหน้า HTML)
+async function executeDelete(fileId) {
+    if (!confirm("ยืนยันการลบไฟล์นี้ใช่หรือไม่?")) return;
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('loadingText').innerText = "กำลังดำเนินการลบ...";
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "delete", fileId: fileId })
+        });
+        const result = await response.json();
+        if (result.result === "success") {
+            alert("🗑️ ลบไฟล์เรียบร้อยแล้ว");
+            fetchStatus(); // รีเฟรชตารางหน้าสถานะ
+        } else {
+            alert("❌ ลบไม่สำเร็จ: " + result.error);
+        }
+    } catch (err) {
+        alert("❌ เกิดข้อผิดพลาดในการส่งคำสั่งลบ");
+    } finally {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+
+
+    // ==================================================
+// DEBUG PASSWORD VIEW
+// ==================================================
+async function loadDebugPasswords() {
+
+    const output = document.getElementById('debugOutput');
+
+    output.innerText = "กำลังโหลดข้อมูล...";
+
+    try {
+
+        const response = await fetch(
+            SCRIPT_URL + '?action=debugPasswords'
+        );
+
+        const text = await response.text();
+
+        console.log(text);
+
+        output.innerText = text;
+
+        return;
+
+    } catch (err) {
+
+        output.innerText =
+            "ERROR:\n\n" + err;
+
+        console.error(err);
+    }
+}
+    
 </script>
 
 <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
