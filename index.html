@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.js"></script>
     
     <style>
         :root {
@@ -478,10 +479,10 @@
         }
     }
 
-    // ฟังก์ชันสร้าง PDF ที่ค้นหา Template อัตโนมัติจาก GitHub โดยระบุจากชื่อไฟล์
+    // ฟังก์ชันสร้าง PDF ที่ได้รับการแก้ไขให้ออกแบบหน้าเอกสารแบบออฟไลน์ พร้อมรองรับภาษาไทย
     async function generatePDF(templateName, suffix) {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = `กำลังดึงเทมเพลต ${templateName} และสร้างไฟล์ PDF...`;
+        document.getElementById('loadingText').innerText = `กำลังดึงระบบฟอนต์ไทยและสร้างไฟล์ PDF...`;
 
         try {
             // ดึงค่าข้อมูลจากหน้า Input ที่ระบุ suffix
@@ -490,21 +491,64 @@
             const val3 = document.getElementById(`input3_${suffix}`).value;
             const val4 = document.getElementById(`input4_${suffix}`).value;
 
-            // ทำการค้นหาและดึงไฟล์ PDF Template จาก GitHub โดยตรงผ่านชื่อไฟล์
-            const githubUrl = `https://raw.githubusercontent.com/search/repository/main/templates/${templateName}`; 
-            const templateResponse = await fetch(githubUrl);
-            if (!templateResponse.ok) throw new Error(`ไม่สามารถโหลดไฟล์เทมเพลต ${templateName} ได้`);
-            
-            const templateBytes = await templateResponse.arrayBuffer();
-            const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
-            
-            // --- ประมวลผลแปลงตัวหนังสือเป็นภาพเพื่อนำไปแปะใน PDF ---
-            // (คุณสามารถกำหนดพิกัด x, y แยกตาม suffix ได้ตรงส่วนนี้)
-            const firstPage = pdfDoc.getPages()[0];
-            
-            // ตัวอย่างจำลองการนำข้อมูลเขียนลง PDF 
-            // firstPage.drawText(val1, { x: 50, y: 700, size: 16 });
+            // ลงทะเบียนชุดจัดการฟอนต์ภายนอกให้กับ PDFLib
+            pdfDoc = await PDFLib.PDFDocument.create();
+            pdfDoc.registerFontkit(fontkit);
 
+            // โหลดฟอนต์ภาษาไทย (Sarabun) เพื่อป้องกันปัญหาสระลอย/ภาษาต่างดาว
+            const fontUrl = 'https://fonts.gstatic.com/s/sarabun/v13/2s777F395bdv7V9IK0-cbZ6Gf7vP.ttf';
+            const fontResponse = await fetch(fontUrl);
+            if (!fontResponse.ok) throw new Error("ไม่สามารถโหลดฟอนต์ภาษาไทยสำหรับสร้าง PDF ได้");
+            const fontBytes = await fontResponse.arrayBuffer();
+            const thaiFont = await pdfDoc.embedFont(fontBytes);
+
+            // สร้างหน้า PDF ขนาดมาตรฐาน A4 (595.28 x 841.89 จุด)
+            const firstPage = pdfDoc.addPage([595.28, 841.89]);
+            const { width, height } = firstPage.getSize();
+
+            // วาดโครงสร้างเส้นขอบตารางและหัวเอกสารให้ดูเป็นสากลและเป็นทางการ
+            firstPage.drawRectangle({
+                x: 40, y: 40, width: width - 80, height: height - 80,
+                borderColor: PDFLib.rgb(0.14, 0.39, 0.92), borderWidth: 2
+            });
+
+            // หัวข้อหลักของเอกสาร
+            firstPage.drawText("เอกสารข้อกำหนดขอบเขตงาน (TOR)", {
+                x: 60, y: height - 80, size: 24, font: thaiFont, color: PDFLib.rgb(0.12, 0.16, 0.23)
+            });
+            
+            firstPage.drawText(`รูปแบบเอกสารย่อย: ${templateName.split('.')[0].toUpperCase()}`, {
+                x: 60, y: height - 105, size: 12, font: thaiFont, color: PDFLib.rgb(0.39, 0.45, 0.55)
+            });
+
+            // ขีดเส้นแบ่งส่วนหัวข้อ
+            firstPage.drawLine({
+                start: { x: 60, y: height - 120 }, end: { x: width - 60, y: height - 120 },
+                color: PDFLib.rgb(0.88, 0.91, 0.94), borderWidth: 1
+            });
+
+            // เริ่มทำการเขียนรายละเอียดข้อมูลจากฟอร์มอินพุตลงในใบงาน
+            let currentY = height - 160;
+            const rowHeight = 35;
+
+            const renderLabelValue = (label, value) => {
+                firstPage.drawText(label, { x: 70, y: currentY, size: 14, font: thaiFont, color: PDFLib.rgb(0.12, 0.16, 0.23) });
+                firstPage.drawText(value, { x: 200, y: currentY, size: 14, font: thaiFont, color: PDFLib.rgb(0.25, 0.32, 0.44) });
+                
+                // เส้นประใต้หัวข้อข้อมูล
+                firstPage.drawLine({
+                    start: { x: 70, y: currentY - 8 }, end: { x: width - 70, y: currentY - 8 },
+                    color: PDFLib.rgb(0.95, 0.96, 0.98), borderWidth: 1
+                });
+                currentY -= rowHeight;
+            };
+
+            renderLabelValue("ชื่อ-นามสกุล:", val1);
+            renderLabelValue("ตำแหน่ง / แผนก:", val2);
+            renderLabelValue("เบอร์โทรศัพท์ติดต่อ:", val3);
+            renderLabelValue("รายละเอียดงานหลัก:", val4);
+
+            // บันทึกและนำออกไฟล์ PDF
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
             const link = document.createElement('a');
