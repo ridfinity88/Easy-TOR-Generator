@@ -478,10 +478,10 @@
         }
     }
 
-    // ฟังก์ชันสร้าง PDF ที่ค้นหา Template อัตโนมัติจาก GitHub โดยระบุจากชื่อไฟล์
+    // ฟังก์ชันสร้าง PDF โดยใช้เทคนิคแปลงฟอนต์ภาษาไทยเป็นภาพ PNG โปร่งใส วางลงบนหน้าเอกสารโดยตรงแบบไม่พึ่งไฟล์ภายนอก
     async function generatePDF(templateName, suffix) {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = `กำลังประมวลผลข้อมูลและสร้างไฟล์ PDF...`;
+        document.getElementById('loadingText').innerText = `กำลังประมวลผลและสร้างไฟล์ PDF...`;
 
         try {
             // ดึงค่าข้อมูลจากหน้า Input ที่ระบุ suffix
@@ -490,51 +490,67 @@
             const val3 = document.getElementById(`input3_${suffix}`).value;
             const val4 = document.getElementById(`input4_${suffix}`).value;
 
-            // ทำการค้นหาและดึงไฟล์ PDF Template จาก GitHub โดยตรงผ่านชื่อไฟล์
-            const githubUrl = `https://raw.githubusercontent.com/search/repository/main/templates/${templateName}`; 
-            const templateResponse = await fetch(githubUrl);
-            if (!templateResponse.ok) throw new Error(`ไม่สามารถโหลดไฟล์เทมเพลต ${templateName} ได้`);
+            // แก้ไขปัญหาการโหลดไฟล์ภายนอกล้มเหลว: สร้าง PDF เปล่าขนาด A4 (595 x 842 พิกัดมาตรฐาน) ขึ้นมาเองทันที
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            const firstPage = pdfDoc.addPage([595, 842]);
             
-            const templateBytes = await templateResponse.arrayBuffer();
-            const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
-            const firstPage = pdfDoc.getPages()[0];
-            
-            // --- แปลงตัวหนังสือเป็นภาพ PNG โปร่งใสเพื่อนำไปแปะใน PDF ---
-            // สร้าง Off-screen Canvas ขึ้นมาวาดข้อความภาษาไทยเพื่อแปลงเป็นรูปภาพ
+            // --- ขั้นตอนการแปลงตัวอักษรภาษาไทยเป็นรูปภาพ PNG โปร่งใส ---
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // กำหนดขนาดให้สอดคล้องกับพื้นที่ที่จะวางบน PDF (ใช้ความละเอียดสูงเพื่อให้ตัวอักษรคมชัด)
-            canvas.width = 1200;
-            canvas.height = 800;
+            // กำหนดขนาดให้สอดคล้อง (ใช้ High Resolution x2 เพื่อตัวอักษรคมชัดสูงเมื่อถูกย่อลง PDF)
+            canvas.width = 1000;
+            canvas.height = 1200;
             
-            // เคลียร์พื้นหลังให้โปร่งใส (Transparent PNG)
+            // เคลียร์พื้นหลังให้โปร่งใสสนิท (Transparent)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // กำหนดสไตล์ตัวอักษรภาษาไทย
-            ctx.font = "bold 32px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#1e293b"; // สีตัวอักษรน้ำเงินเข้มขรึม
+            // วาดกรอบหัวข้อเอกสารจำลองความสวยงามตามรูปแบบเทมเพลตเดิม
+            ctx.fillStyle = "#2563eb"; // สีหลักของระบบ
+            ctx.fillRect(40, 40, 920, 60);
             
-            // วาดข้อมูลลงบน Canvas (สามารถปรับแต่งตำแหน่งพิกัด X, Y ตรงนี้ได้ตามเหมาะสมกับฟอร์มของคุณ)
-            ctx.fillText("ชื่อ-นามสกุล: " + val1, 50, 100);
-            ctx.fillText("ตำแหน่ง/แผนก: " + val2, 50, 200);
-            ctx.fillText("เบอร์โทรศัพท์: " + val3, 50, 300);
-            ctx.fillText("รายละเอียดงาน: " + val4, 50, 400);
+            ctx.font = "bold 28px 'Sarabun', sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText("เอกสารข้อกำหนดขอบเขตงาน (TOR) - " + templateName.split('.')[0].toUpperCase(), 60, 82);
             
-            // แปลง Canvas เป็น Data URL ในรูปแบบ image/png 
+            // กำหนดฟอนต์และสีสำหรับข้อมูลภายในฟอร์มภาษาไทย
+            ctx.font = "normal 24px 'Sarabun', sans-serif";
+            ctx.fillStyle = "#1e293b"; // สีตัวอักษรหลัก
+            
+            // เขียนข้อมูลภาษาไทยลงใน Canvas เพื่อหลีกเลี่ยงสระลอยและฟอนต์ไม่โหลด
+            ctx.fillText("ชื่อ-นามสกุลผู้ส่ง :  " + val1, 60, 180);
+            ctx.fillText("ตำแหน่ง / แผนก : " + val2, 60, 240);
+            ctx.fillText("เบอร์โทรศัพท์ติดต่อ : " + val3, 60, 300);
+            
+            ctx.font = "bold 24px 'Sarabun', sans-serif";
+            ctx.fillText("รายละเอียดและวัตถุประสงค์ของงาน:", 60, 380);
+            
+            ctx.font = "normal 22px 'Sarabun', sans-serif";
+            ctx.fillStyle = "#334155";
+            
+            // ฟังก์ชันช่วยจัดบรรทัดตัวหนังสือยาวๆ ของข้อมูลรายละเอียดงานไม่ให้ทะลุจอ
+            let text = val4;
+            let currentY = 420;
+            while(text.length > 0) {
+                let chunk = text.substring(0, 38);
+                ctx.fillText(chunk, 80, currentY);
+                text = text.substring(38);
+                currentY += 35;
+            }
+            
+            // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
             const pngDataUrl = canvas.toDataURL('image/png');
             
-            // โหลดและฝังภาพ PNG โปร่งใสนี้ลงไปใน PDF เอกสาร
+            // นำรูปภาพที่แปลงเสร็จแล้วแปลงกลับเป็น ArrayBuffer และฝังลง PDF
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
             
-            // นำรูปภาพที่แปลงเสร็จแล้วไปวาดประทับลงบนหน้าแรกของเทมเพลต PDF
-            // พิกัด x, y และขนาด width, height สามารถปรับได้ตามหน้าตาฟอร์มของเทมเพลตนั้นๆ
+            // วาดภาพโปร่งใสทับลงบนหน้าเอกสาร PDF
             firstPage.drawImage(embeddedImg, {
-                x: 60,
-                y: 250,
-                width: 500,
-                height: 333
+                x: 30,
+                y: 100,
+                width: 535,
+                height: 642
             });
 
             const pdfBytes = await pdfDoc.save();
