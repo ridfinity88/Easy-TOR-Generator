@@ -478,10 +478,10 @@
         }
     }
 
-    // ฟังก์ชันสร้าง PDF โดยใช้เทคนิคแปลงฟอนต์ภาษาไทยเป็นภาพ PNG โปร่งใส วางลงบนหน้าเอกสารโดยตรงแบบไม่พึ่งไฟล์ภายนอก
+    // ฟังก์ชันสร้าง PDF โดยโหลดเทมเพลตเดิมมาหยอดข้อมูลโดยใช้เทคนิคแปลงฟอนต์เป็นภาพ PNG โปร่งใส วางซ้อนลงบนหน้าเอกสาร
     async function generatePDF(templateName, suffix) {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = `กำลังประมวลผลและสร้างไฟล์ PDF...`;
+        document.getElementById('loadingText').innerText = `กำลังดึงไฟล์เทมเพลตและประมวลผล PDF...`;
 
         try {
             // ดึงค่าข้อมูลจากหน้า Input ที่ระบุ suffix
@@ -490,9 +490,14 @@
             const val3 = document.getElementById(`input3_${suffix}`).value;
             const val4 = document.getElementById(`input4_${suffix}`).value;
 
-            // แก้ไขปัญหาการโหลดไฟล์ภายนอกล้มเหลว: สร้าง PDF เปล่าขนาด A4 (595 x 842 พิกัดมาตรฐาน) ขึ้นมาเองทันที
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            const firstPage = pdfDoc.addPage([595, 842]);
+            // 1. โหลดไฟล์แม่แบบ PDF ที่ระบุ (เช่น template1.pdf) เข้ามาเป็น ArrayBuffer เพื่อไม่ให้ไฟล์ต้นฉบับเสียหาย
+            const templateBytes = await fetch(templateName).then(res => {
+                if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
+                return res.arrayBuffer();
+            });
+            
+            const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
+            const firstPage = pdfDoc.getPages()[0];
             
             // --- ขั้นตอนการแปลงตัวอักษรภาษาไทยเป็นรูปภาพ PNG โปร่งใส ---
             const canvas = document.createElement('canvas');
@@ -545,7 +550,7 @@
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
             
-            // วาดภาพโปร่งใสทับลงบนหน้าเอกสาร PDF
+            // วาดภาพโปร่งใสทับลงบนหน้าเอกสาร PDF ของตัวเทมเพลตเดิม
             firstPage.drawImage(embeddedImg, {
                 x: 30,
                 y: 100,
