@@ -571,21 +571,9 @@
             
             // เขียนข้อมูลภาษาไทยลงใน Canvas โดยหยอดเฉพาะข้อมูลดิบตามพิกัดบรรทัดเดิม
             ctx.fillText(val1, 160, 170);
-            ctx.fillText(val2, 30, 500);
+            ctx.fillText(val2, 20, 380);
             ctx.fillText(val3, 853, 108);
-            
-            ctx.font = "normal 14px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#334155";
-            
-            // ฟังก์ชันช่วยจัดบรรทัดตัวหนังสือยาวๆ ของข้อมูลเลข PR เก่า หรือรายละเอียดส่วนท้าย
-            let text = val4;
-            let currentY = 420;
-            while(text.length > 0) {
-                let chunk = text.substring(0, 38);
-                ctx.fillText(chunk, 80, currentY);
-                text = text.substring(38);
-                currentY += 35;
-            }
+            ctx.fillText(val4, 870, 139);  
 
             // --- ส่วนที่เพิ่มข้อมูลเพิ่มเติม: ข้อมูลผู้สร้าง, ข้อมูล D E F G และ วันที่ปัจจุบัน ---
             ctx.font = "normal 14px 'Sarabun', sans-serif";
