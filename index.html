@@ -687,10 +687,9 @@
 
                 // หากมีข้อมูลช่องใดช่องหนึ่งในแถว ให้ดำเนินการพิมพ์ลงไป
                 if (title || brand || qty || unit || spec) {
-                    ctx.fillText(i.toString(), 35, currentYPosition);
-                    ctx.fillText(title, 350, currentYPosition);
-                    ctx.fillText(brand, 550, currentYPosition);
-                    ctx.fillText(qty, 600, currentYPosition);
+                    ctx.fillText(title, 35, currentYPosition);
+                    ctx.fillText(brand, 350, currentYPosition);
+                    ctx.fillText(qty, 550, currentYPosition);
                     ctx.fillText(unit, 700, currentYPosition);
                     ctx.fillText(spec, 820, currentYPosition);
                     currentYPosition += rowSpacing;
