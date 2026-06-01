@@ -276,6 +276,14 @@
             <label>เลข PR เก่า</label>
             <input type="text" class="data-input-t1" id="input4_t1" maxlength="50" placeholder="ระบุเลข PR เก่า">
         </div>
+        <div class="input-group">
+            <label>จำหน่ายโดย</label>
+            <input type="text" class="data-input-t1" id="input5_t1" maxlength="50" placeholder="ระบุผู้จำหน่าย">
+        </div>
+        <div class="input-group">
+            <label>งบประมาณ</label>
+            <input type="text" class="data-input-t1" id="input6_t1" maxlength="50" placeholder="ระบุงบประมาณ">
+        </div>
         <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
     </div>
@@ -301,6 +309,14 @@
             <label>เลข PR เก่า</label>
             <input type="text" class="data-input-t2" id="input4_t2" maxlength="50" placeholder="ระบุเลข PR เก่า">
         </div>
+        <div class="input-group">
+            <label>จำหน่ายโดย</label>
+            <input type="text" class="data-input-t2" id="input5_t2" maxlength="50" placeholder="ระบุผู้จำหน่าย">
+        </div>
+        <div class="input-group">
+            <label>งบประมาณ</label>
+            <input type="text" class="data-input-t2" id="input6_t2" maxlength="50" placeholder="ระบุงบประมาณ">
+        </div>
         <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
     </div>
@@ -325,6 +341,14 @@
         <div class="input-group">
             <label>เลข PR เก่า</label>
             <input type="text" class="data-input-t3" id="input4_t3" maxlength="50" placeholder="ระบุเลข PR เก่า">
+        </div>
+        <div class="input-group">
+            <label>จำหน่ายโดย</label>
+            <input type="text" class="data-input-t3" id="input5_t3" maxlength="50" placeholder="ระบุผู้จำหน่าย">
+        </div>
+        <div class="input-group">
+            <label>งบประมาณ</label>
+            <input type="text" class="data-input-t3" id="input6_t3" maxlength="50" placeholder="ระบุงบประมาณ">
         </div>
         <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
@@ -624,6 +648,10 @@
         const val2 = document.getElementById(`input2_${suffix}`).value || "";
         const val3 = document.getElementById(`input3_${suffix}`).value || "";
         const val4 = document.getElementById(`input4_${suffix}`).value || "";
+        
+        // ดึงค่าช่องที่เพิ่มใหม่มาเตรียมไว้ใช้งานกับส่วนอื่นๆ ของระบบ
+        const val5 = document.getElementById(`input5_${suffix}`).value || "";
+        const val6 = document.getElementById(`input6_${suffix}`).value || "";
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -733,6 +761,8 @@
             link.click();
 
             alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
+            // อยู่หน้าเดิม ไม่มีการเปลี่ยนหน้า (เรียกแสดงหน้า itemsDataView ซ้ำเพื่อความชัวร์)
+            showView('itemsDataView');
         } catch (error) {
             console.error(error);
             alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
@@ -791,7 +821,8 @@
             const result = await response.json();
             if (result.result === "success") {
                 alert(`🚀 สร้างแผ่นงานเอกสารและส่ง TOR [ ${finalFileName} ] เข้าสู่ระบบสำเร็จเรียบร้อยแล้ว!`);
-                showView('homeView');
+                // แก้ไข: เปลี่ยนให้อยู่หน้าเดิม ไม่กลับหน้าหลัก
+                showView('itemsDataView');
             } else {
                 alert("❌ เกิดปัญหาไม่สามารถอัปโหลดข้อมูลไปยังฐานระบบได้");
             }
