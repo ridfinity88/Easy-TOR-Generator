@@ -605,7 +605,7 @@
             const yearStr = String(now.getFullYear() + 543).slice(-2); // แปลงเป็น พ.ศ. และเอาแค่ 2 หลักท้าย
             const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
             
-            ctx.fillText(currentDateFormatted, 200, 50);
+            ctx.fillText(currentDateFormatted, 180, 70);
             
             // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
             const pngDataUrl = canvas.toDataURL('image/png');
