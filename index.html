@@ -31,6 +31,9 @@
         .view { display: none; width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; }
         .view.active { display: block; animation: slideUp 0.4s cubic-bezier(0, 0.55, 0.45, 1); }
 
+        /* ขยายขนาดความกว้างเฉพาะหน้ากรอกตารางรายการเพื่อให้กรอกง่ายขึ้น */
+        #itemsDataView { max-width: 650px; }
+
         @keyframes slideUp { 
             from { opacity: 0; transform: translateY(20px); } 
             to { opacity: 1; transform: translateY(0); } 
@@ -62,7 +65,6 @@
             display: flex; align-items: center; justify-content: center;
         }
         .menu-btn:hover { border-color: var(--primary); background: #f1f5f9; transform: translateY(-2px); }
-        .menu-btn::after { content: none; color: var(--primary); }
 
         .action-btn {
             width: 100%; padding: 14px; background: var(--primary); color: white;
@@ -91,7 +93,7 @@
             width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; 
             font-size: 1rem; transition: 0.2s; box-sizing: border-box;
         }
-        input:focus { outline: none; border-color: var(--primary); ring: 2px var(--primary); }
+        input:focus { outline: none; border-color: var(--primary); }
 
         .back-btn { background: none; border: none; color: var(--text-sub); margin-top: 20px; cursor: pointer; font-size: 0.9rem; }
         .back-btn:hover { color: var(--text-main); }
@@ -103,65 +105,78 @@
             z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
         }
 
-        /* สำหรับตารางในหน้าสถานะ */
-.status-table-container {
-    overflow-x: auto;
-    margin-top: 15px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-.status-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-    background: white;
-}
-.status-table th {
-    background: #f8fafc;
-    padding: 12px 8px;
-    border-bottom: 2px solid #e2e8f0;
-    text-align: center;
-}
-.status-table td {
-    padding: 12px 8px;
-    border-bottom: 1px solid #f1f5f9;
-    text-align: center;
-}
-.status-icon { cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
-.status-icon:hover { transform: scale(1.2); }
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-.badge-wait { background: #fef3c7; color: #92400e; }    /* รออนุมัติ */
-.badge-approve { background: #d1fae5; color: #065f46; } /* อนุมัติแล้ว */
-.badge-reject { background: #fee2e2; color: #991b1b; }  /* ไม่อนุมัติ */
+        /* ตารางสไตล์ทั่วไปและตารางกรอกรายการใหม่ */
+        .status-table-container, .items-table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .status-table, .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background: white;
+        }
+        .status-table th, .items-table th {
+            background: #f8fafc;
+            padding: 12px 8px;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: center;
+            font-weight: 700;
+        }
+        .status-table td, .items-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: center;
+        }
+        
+        /* สไตล์ Input ภายในตารางกรอกรายการ */
+        .table-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            box-sizing: border-box;
+        }
+        .table-input:focus { outline: none; border-color: var(--primary); }
 
-.btn-approve { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-right: 5px; }
-.btn-reject { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
-.btn-approve:hover, .btn-reject:hover { opacity: 0.8; }
+        .status-icon { cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .status-icon:hover { transform: scale(1.2); }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .badge-wait { background: #fef3c7; color: #92400e; }
+        .badge-approve { background: #d1fae5; color: #065f46; }
+        .badge-reject { background: #fee2e2; color: #991b1b; }
+
+        .btn-approve { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-right: 5px; }
+        .btn-reject { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .btn-approve:hover, .btn-reject:hover { opacity: 0.8; }
 
         /* Modal Style */
-.modal {
-    display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
-}
-.modal-content {
-    background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center;
-}
-.password-wrapper { position: relative; margin: 15px 0; }
-.password-wrapper input { width: 100%; padding: 12px 40px 12px 12px; }
-.toggle-password {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    cursor: pointer; color: #64748b;
-}
-        
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center;
+        }
+        .password-wrapper { position: relative; margin: 15px 0; }
+        .password-wrapper input { width: 100%; padding: 12px 40px 12px 12px; }
+        .toggle-password {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: #64748b;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -215,9 +230,9 @@
         <h2>เลือกรูปแบบเทมเพลต TOR</h2>
         <p>กรุณาเลือกรูปแบบเอกสารที่ต้องการสร้าง</p>
         <div class="menu-grid">
-            <button class="menu-btn" onclick="showView('createView_t1')">เฉพาะหน้า TOR</button>
-            <button class="menu-btn" onclick="showView('createView_t2')">TOR + แนบภาพ</button>
-            <button class="menu-btn" onclick="showView('createView_t3')">TOR + แนบภาพ + ใบ JOB</button>
+            <button class="menu-btn" onclick="goToCreateForm('createView_t1', 'template1.pdf', 't1')">เฉพาะหน้า TOR</button>
+            <button class="menu-btn" onclick="goToCreateForm('createView_t2', 'template2.pdf', 't2')">TOR + แนบภาพ</button>
+            <button class="menu-btn" onclick="goToCreateForm('createView_t3', 'template3.pdf', 't3')">TOR + แนบภาพ + ใบ JOB</button>
         </div>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('creatorCheckView')">ย้อนกลับ</button>
     </div>
@@ -247,21 +262,21 @@
         <p><b>รูปแบบ:</b> เฉพาะหน้า TOR (Template 1)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
-            <input type="text" class="data-input-t1" id="input1_t1" maxlength="50" placeholder="ระบุชื่องาน" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input-t1" id="input1_t1" maxlength="50" placeholder="ระบุชื่องาน">
         </div>
         <div class="input-group">
             <label>วัตถุประสงค์</label>
-            <input type="text" class="data-input-t1" id="input2_t1" maxlength="50" placeholder="ระบุวัตถุประสงค์" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input-t1" id="input2_t1" maxlength="50" placeholder="ระบุวัตถุประสงค์">
         </div>
         <div class="input-group">
             <label>Cost Center</label>
-            <input type="text" class="data-input-t1" id="input3_t1" maxlength="50" placeholder="ระบุ รหัส Cost Center" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input-t1" id="input3_t1" maxlength="50" placeholder="ระบุ รหัส Cost Center">
         </div>
         <div class="input-group">
             <label>เลข PR เก่า</label>
-            <input type="text" class="data-input-t1" id="input4_t1" maxlength="50" placeholder="ระบุเลข PR เก่า" oninput="checkFormValid('t1')">
+            <input type="text" class="data-input-t1" id="input4_t1" maxlength="50" placeholder="ระบุเลข PR เก่า">
         </div>
-        <button id="downloadBtn_t1" class="action-btn" disabled onclick="generatePDF('template1.pdf', 't1')">กรุณากรอกข้อมูลให้ครบ</button>
+        <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
     </div>
 </div>
@@ -272,21 +287,21 @@
         <p><b>รูปแบบ:</b> TOR + แนบภาพ (Template 2)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
-            <input type="text" class="data-input-t2" id="input1_t2" maxlength="50" placeholder="ระบุชื่องาน" oninput="checkFormValid('t2')">
+            <input type="text" class="data-input-t2" id="input1_t2" maxlength="50" placeholder="ระบุชื่องาน">
         </div>
         <div class="input-group">
             <label>วัตถุประสงค์</label>
-            <input type="text" class="data-input-t2" id="input2_t2" maxlength="50" placeholder="ระบุวัตถุประสงค์" oninput="checkFormValid('t2')">
+            <input type="text" class="data-input-t2" id="input2_t2" maxlength="50" placeholder="ระบุวัตถุประสงค์">
         </div>
         <div class="input-group">
             <label>Cost Center</label>
-            <input type="text" class="data-input-t2" id="input3_t2" maxlength="50" placeholder="ระบุ รหัส Cost Center" oninput="checkFormValid('t2')">
+            <input type="text" class="data-input-t2" id="input3_t2" maxlength="50" placeholder="ระบุ รหัส Cost Center">
         </div>
         <div class="input-group">
             <label>เลข PR เก่า</label>
-            <input type="text" class="data-input-t2" id="input4_t2" maxlength="50" placeholder="ระบุเลข PR เก่า" oninput="checkFormValid('t2')">
+            <input type="text" class="data-input-t2" id="input4_t2" maxlength="50" placeholder="ระบุเลข PR เก่า">
         </div>
-        <button id="downloadBtn_t2" class="action-btn" disabled onclick="generatePDF('template2.pdf', 't2')">กรุณากรอกข้อมูลให้ครบ</button>
+        <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
     </div>
 </div>
@@ -297,28 +312,55 @@
         <p><b>รูปแบบ:</b> TOR + แนบภาพ + ใบ JOB (Template 3)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
-            <input type="text" class="data-input-t3" id="input1_t3" maxlength="50" placeholder="ระบุชื่องาน" oninput="checkFormValid('t3')">
+            <input type="text" class="data-input-t3" id="input1_t3" maxlength="50" placeholder="ระบุชื่องาน">
         </div>
         <div class="input-group">
             <label>วัตถุประสงค์</label>
-            <input type="text" class="data-input-t3" id="input2_t3" maxlength="50" placeholder="ระบุวัตถุประสงค์" oninput="checkFormValid('t3')">
+            <input type="text" class="data-input-t3" id="input2_t3" maxlength="50" placeholder="ระบุวัตถุประสงค์">
         </div>
         <div class="input-group">
             <label>Cost Center</label>
-            <input type="text" class="data-input-t3" id="input3_t3" maxlength="50" placeholder="ระบุ รหัส Cost Center" oninput="checkFormValid('t3')">
+            <input type="text" class="data-input-t3" id="input3_t3" maxlength="50" placeholder="ระบุ รหัส Cost Center">
         </div>
         <div class="input-group">
             <label>เลข PR เก่า</label>
-            <input type="text" class="data-input-t3" id="input4_t3" maxlength="50" placeholder="ระบุเลข PR เก่า" oninput="checkFormValid('t3')">
+            <input type="text" class="data-input-t3" id="input4_t3" maxlength="50" placeholder="ระบุเลข PR เก่า">
         </div>
-        <button id="downloadBtn_t3" class="action-btn" disabled onclick="generatePDF('template3.pdf', 't3')">กรุณากรอกข้อมูลให้ครบ</button>
+        <button class="action-btn" onclick="navigateToItemsView()">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('templateView')">ย้อนกลับ</button>
+    </div>
+</div>
+
+<div id="itemsDataView" class="view">
+    <div class="card">
+        <h2>ระบุข้อมูลรายการพัสดุที่ขอซื้อ</h2>
+        <p>กรอกข้อมูลรายการที่ต้องการ (ไม่จำเป็นต้องกรอกครบทุกช่อง)</p>
+        
+        <div class="items-table-container">
+            <table class="items-table" id="itemsInputTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">ที่</th>
+                        <th style="width: 25%;">รายการที่ขอซื้อ</th>
+                        <th style="width: 20%;">ยี่ห้อ/รุ่น</th>
+                        <th style="width: 12%;">จำนวน</th>
+                        <th style="width: 13%;">หน่วย</th>
+                        <th style="width: 25%;">คุณลักษณะเฉพาะ</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <button class="action-btn" style="background: var(--success); margin-top: 20px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
     </div>
 </div>
 
 <div id="statusView" class="view">
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
-        <h2>定態การส่ง TOR</h2>
+        <h2>สถานะการส่ง TOR</h2>
         <p>แสดงรายการล่าสุด 30 รายการ</p>
         
         <button class="action-btn" onclick="fetchStatus()" style="width: auto; padding: 8px 16px; margin-bottom: 10px; font-size: 0.8rem;">🔄 รีเฟรชข้อมูล</button>
@@ -384,9 +426,34 @@
 
     let selectedFiles = [];
     
-    // ตัวแปรส่วนกลางสำหรับเก็บข้อมูลผู้สร้างและข้อมูลที่ดึงมาจาก Sheet คอลัมน์ D, E, F, G
+    // ตัวแปรส่วนกลางของระบบเดิม
     let globalCreatorName = "";
     let globalSheetData = { d: "", e: "", f: "", g: "" };
+
+    // ตัวแปรส่วนกลางสำหรับจัดการขั้นตอนการสร้าง Template และเก็บพารามิเตอร์ปัจจุบัน
+    let currentTemplateName = "";
+    let currentSuffix = "";
+    let currentSourceViewId = "";
+
+    // สร้างตารางกรอกรายการสินค้า 10 แถวเมื่อเริ่มต้นโหลดหน้าเว็บ
+    function buildItemsTableRows() {
+        const tbody = document.getElementById('itemsTableBody');
+        tbody.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+            const row = `
+                <tr>
+                    <td>${i}</td>
+                    <td><input type="text" id="item_title_${i}" class="table-input" placeholder="รายการที่ ${i}"></td>
+                    <td><input type="text" id="item_brand_${i}" class="table-input" placeholder="ยี่ห้อ/รุ่น"></td>
+                    <td><input type="text" id="item_qty_${i}" class="table-input" placeholder="จำนวน"></td>
+                    <td><input type="text" id="item_unit_${i}" class="table-input" placeholder="หน่วย"></td>
+                    <td><input type="text" id="item_spec_${i}" class="table-input" placeholder="คุณลักษณะ"></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        }
+    }
+    buildItemsTableRows();
 
     function showView(id) {
         resetSendForm(); 
@@ -403,7 +470,34 @@
         }
     }
 
-    // ฟังก์ชันใหม่: ตรวจสอบรายชื่อผู้สร้าง TOR จาก Google Sheet
+    // ฟังก์ชันช่วยในการตั้งค่ารูปแบบก่อนเข้าหน้ากรอกข้อมูลหลัก
+    function goToCreateForm(viewId, templateName, suffix) {
+        currentTemplateName = templateName;
+        currentSuffix = suffix;
+        currentSourceViewId = viewId;
+        showView(viewId);
+    }
+
+    // กดปุ่มถัดไปจากหน้า Form หลักเพื่อเข้าสู่หน้ากรอกข้อมูลตารางพัสดุ
+    function navigateToItemsView() {
+        showView('itemsDataView');
+    }
+
+    // กดย้อนกลับจากตารางกรอกรายการพัสดุ ให้กลับไปหน้ากรอกข้อมูลหลักตัวล่าสุดที่เปิด
+    function handleBackToTemplateView() {
+        if (currentSourceViewId) {
+            showView(currentSourceViewId);
+        } else {
+            showView('templateView');
+        }
+    }
+
+    // รวบรวมข้อมูลรายการพัสดุและสั่ง Generate PDF
+    function triggerPDFGeneration() {
+        generatePDF(currentTemplateName, currentSuffix);
+    }
+
+    // ฟังก์ชันเดิม: ตรวจสอบรายชื่อผู้สร้าง TOR จาก Google Sheet
     async function verifyCreator() {
         const creatorInput = document.getElementById('creatorInput');
         const nameValue = creatorInput.value.trim();
@@ -421,7 +515,6 @@
             const result = await response.json();
             
             if (result.success) {
-                // เก็บค่าลงตัวแปร Global ไว้ใช้งานตอนสร้าง PDF
                 globalCreatorName = nameValue;
                 globalSheetData.d = result.data.d || "";
                 globalSheetData.e = result.data.e || "";
@@ -429,7 +522,7 @@
                 globalSheetData.g = result.data.g || "";
                 
                 document.getElementById('loadingOverlay').style.display = 'none';
-                showView('templateView'); // ผ่านไปหน้าเลือก Template
+                showView('templateView');
             } else {
                 document.getElementById('loadingOverlay').style.display = 'none';
                 alert("❌ ไม่มีข้อมูลผู้สร้าง TOR");
@@ -513,39 +606,29 @@
         if (finalSubmitBtn) { finalSubmitBtn.style.display = "none"; }
     }
 
-    // ฟังก์ชันตรวจสอบการกรอกข้อมูลแยกตามหน้าเทมเพลต
+    // ยกเลิกการบังคับตรวจจับการพิมพ์ฟอร์มเพื่อรักษาความเสถียรเดิม
     function checkFormValid(suffix) {
-        const inputs = document.querySelectorAll(`.data-input-${suffix}`);
-        let allFilled = true;
-        inputs.forEach(input => {
-            if (!input.value.trim()) allFilled = false;
-        });
-
-        const btn = document.getElementById(`downloadBtn_${suffix}`);
-        if (btn) {
-            if (allFilled) {
-                btn.disabled = false;
-                btn.innerText = "ดาวน์โหลดเอกสาร PDF";
-            } else {
-                btn.disabled = true;
-                btn.innerText = "กรุณากรอกข้อมูลให้ครบ";
-            }
-        }
+        return true;
     }
 
-    // ฟังก์ชันสร้าง PDF โดยโหลดเทมเพลตเดิมมาหยอดข้อมูลโดยใช้เทคนิคแปลงฟอนต์เป็นภาพ PNG โปร่งใส วางซ้อนลงบนหน้าเอกสาร
+    // ฟังก์ชันสร้าง PDF ที่ดึงข้อมูลจากหน้าหลัก + ข้อมูลรายการพัสดุ 10 รายการใหม่เพื่อพิมพ์ลงบนผืนผ้าใบภาพโปร่งใส
     async function generatePDF(templateName, suffix) {
+        if (!templateName || !suffix) {
+            alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง กรุณาเริ่มกระบวนการเลือกใหม่อีกครั้ง");
+            return;
+        }
+
         document.getElementById('loadingOverlay').style.display = 'flex';
         document.getElementById('loadingText').innerText = `กำลังดึงไฟล์เทมเพลตและประมวลผล PDF...`;
 
         try {
-            // ดึงค่าข้อมูลจากหน้า Input ที่ระบุ suffix
-            const val1 = document.getElementById(`input1_${suffix}`).value;
-            const val2 = document.getElementById(`input2_${suffix}`).value;
-            const val3 = document.getElementById(`input3_${suffix}`).value;
-            const val4 = document.getElementById(`input4_${suffix}`).value;
+            // 1. ดึงค่าจากหน้าฟอร์มข้อมูลหลัก
+            const val1 = document.getElementById(`input1_${suffix}`).value || "";
+            const val2 = document.getElementById(`input2_${suffix}`).value || "";
+            const val3 = document.getElementById(`input3_${suffix}`).value || "";
+            const val4 = document.getElementById(`input4_${suffix}`).value || "";
 
-            // 1. โหลดไฟล์แม่แบบ PDF ที่ระบุ (เช่น template1.pdf) เข้ามาเป็น ArrayBuffer เพื่อไม่ให้ไฟล์ต้นฉบับเสียหาย
+            // 2. โหลดไฟล์แม่แบบต้นฉบับ
             const templateBytes = await fetch(templateName).then(res => {
                 if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
                 return res.arrayBuffer();
@@ -554,54 +637,71 @@
             const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
             const firstPage = pdfDoc.getPages()[0];
             
-            // --- ขั้นตอนการแปลงตัวอักษรภาษาไทยเป็นรูปภาพ PNG โปร่งใส ---
+            // --- ขั้นตอนการทำภาพโปร่งใสทับหน้าเอกสาร ---
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // กำหนดขนาดให้สอดคล้อง (ใช้ High Resolution x2 เพื่อตัวอักษรคมชัดสูงเมื่อถูกย่อลง PDF)
             canvas.width = 1000;
             canvas.height = 1200;
-            
-            // เคลียร์พื้นหลังให้โปร่งใสสนิท (Transparent)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // กำหนดฟอนต์และสีสำหรับข้อมูลภาษาไทย (เอาหัวข้อออกทั้งหมด ใส่เฉพาะข้อความดิบที่ผู้ใช้พิมพ์เข้ามา)
+            // เขียนข้อมูลฟอร์มหลักภาษาไทย
             ctx.font = "normal 14px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#1e293b"; // สีตัวอักษรหลัก
+            ctx.fillStyle = "#1e293b";
             
-            // เขียนข้อมูลภาษาไทยลงใน Canvas โดยหยอดเฉพาะข้อมูลดิบตามพิกัดบรรทัดเดิม
             ctx.fillText(val1, 160, 170);
             ctx.fillText(val2, 0, 337);
             ctx.fillText(val3, 853, 108);
             ctx.fillText(val4, 895, 170);  
 
-            // --- ส่วนที่เพิ่มข้อมูลเพิ่มเติม: ข้อมูลผู้สร้าง, ข้อมูล D E F G และ วันที่ปัจจุบัน ---
+            // วาดข้อมูลส่วนตรวจสอบชีตและผู้สร้าง
             ctx.font = "normal 14px 'Sarabun', sans-serif";
             ctx.fillStyle = "#0f172a";
             
-            // วาดข้อมูลที่มาจากการกรอกฟอร์มแรกและดึงจากคอลัมน์ชีต (กำหนดพิกัด Y ด้านล่างเพื่อไม่ให้ทับกับข้อมูลหลัก)
             ctx.fillText(globalSheetData.d, 853, 76);
             ctx.fillText(globalSheetData.e, 160, 108);
             ctx.fillText(globalSheetData.f, 455, 108);
             ctx.fillText(globalSheetData.g, 160, 139);
 
-            // สร้าง Format วันเดือนปีปัจจุบัน (วว/ดด/พ.ศ.สองหลักย่อ) เช่น 30/05/69
+            // คำนวณจัดการวันที่สร้าง ณ ปัจจุบัน
             const now = new Date();
             const dayStr = String(now.getDate()).padStart(2, '0');
             const monthStr = String(now.getMonth() + 1).padStart(2, '0');
-            const yearStr = String(now.getFullYear() + 543).slice(-2); // แปลงเป็น พ.ศ. และเอาแค่ 2 หลักท้าย
+            const yearStr = String(now.getFullYear() + 543).slice(-2); 
             const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
             
             ctx.fillText(currentDateFormatted, 160, 76);
             
-            // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
-            const pngDataUrl = canvas.toDataURL('image/png');
+            // --- ส่วนเสริมสำหรับดึงข้อมูลพัสดุ 10 รายการไปพิมพ์ลงบน PDF ---
+            // ปรับขนาดและพิมพ์ข้อมูลในตำแหน่งที่เหมาะสม (พิกัดตัวอย่างเริ่มที่ Y=450 เพื่อไม่ให้ทับข้อมูลบน)
+            ctx.font = "normal 12px 'Sarabun', sans-serif";
+            let currentYPosition = 450; 
+            const rowSpacing = 25; // ระยะห่างแต่ละบรรทัดรายการ
+
+            for (let i = 1; i <= 10; i++) {
+                const title = document.getElementById(`item_title_${i}`).value.trim();
+                const brand = document.getElementById(`item_brand_${i}`).value.trim();
+                const qty = document.getElementById(`item_qty_${i}`).value.trim();
+                const unit = document.getElementById(`item_unit_${i}`).value.trim();
+                const spec = document.getElementById(`item_spec_${i}`).value.trim();
+
+                // หากมีข้อมูลช่องใดช่องหนึ่งในแถว ให้ดำเนินการพิมพ์ลงไป
+                if (title || brand || qty || unit || spec) {
+                    ctx.fillText(i.toString(), 30, currentYPosition);
+                    ctx.fillText(title, 70, currentYPosition);
+                    ctx.fillText(brand, 320, currentYPosition);
+                    ctx.fillText(qty, 520, currentYPosition);
+                    ctx.fillText(unit, 620, currentYPosition);
+                    ctx.fillText(spec, 720, currentYPosition);
+                    currentYPosition += rowSpacing;
+                }
+            }
             
-            // นำรูปภาพที่แปลงเสร็จแล้วแปลงกลับเป็น ArrayBuffer และฝังลง PDF
+            // แปลงแคนวาสเป็น base64 ฝังลงแผ่น PDF
+            const pngDataUrl = canvas.toDataURL('image/png');
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
             
-            // วาดภาพโปร่งใสทับลงบนหน้าเอกสาร PDF ของตัวเทมเพลตเดิม
             firstPage.drawImage(embeddedImg, {
                 x: 30,
                 y: 100,
@@ -795,7 +895,6 @@
         document.getElementById('pwdModal').style.display = 'flex';
     }
 
-    // ปรับการผูก Event ของ showView สำหรับหน้าสถานะ
     const originalShowView = showView;
     showView = function(id) {
         originalShowView(id);
