@@ -206,8 +206,8 @@
             <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
             <button class="menu-btn" onclick="showView('creatorCheckView')">สร้าง TOR</button>
             <button class="menu-btn" onclick="showView('statusView')">สถานะ TOR</button>
-            <button class="menu-btn" onclick="checkAuth()">อนุมัติ TOR</button>
-            <button class="menu-btn" onclick="showView('debugView')">@MIN</button>
+            <button class="menu-btn" onclick="checkAuth('approve')">อนุมัติ TOR</button>
+            <button class="menu-btn" onclick="checkAuth('debug')">@MIN</button>
         </div>
     </div>
 </div>
@@ -221,7 +221,7 @@
             <input type="text" id="creatorInput" placeholder="พิมพ์ชื่อผู้สร้าง TOR">
         </div>
         <button class="action-btn" onclick="verifyCreator()">ถัดไป</button>
-        <button class="back-btn" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -349,12 +349,13 @@
                     </tr>
                 </thead>
                 <tbody id="itemsTableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
         <button class="action-btn" style="background: var(--success); margin-top: 20px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -611,7 +612,7 @@
         return true;
     }
 
-    // ฟังก์ชันสร้าง PDF ที่ดึงข้อมูลจากหน้าหลัก + ข้อมูลรายการพัสดุ 10 รายการใหม่เพื่อพิมพ์ลงบนผืนผ้าใบภาพโปร่งใส
+    // ฟังก์ชันสร้าง PDF ที่ดึงข้อมูลจากหน้าหลัก + ข้อมูลรายการพัสดุ 10 รายการเพื่อพิมพ์ลงบนแคนวาสภาพโปร่งใส
     async function generatePDF(templateName, suffix) {
         if (!templateName || !suffix) {
             alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง กรุณาเริ่มกระบวนการเลือกใหม่อีกครั้ง");
@@ -672,11 +673,22 @@
             
             ctx.fillText(currentDateFormatted, 160, 76);
             
-            // --- ส่วนเสริมสำหรับดึงข้อมูลพัสดุ 10 รายการไปพิมพ์ลงบน PDF ---
-            // ปรับขนาดและพิมพ์ข้อมูลในตำแหน่งที่เหมาะสม (พิกัดตัวอย่างเริ่มที่ Y=450 เพื่อไม่ให้ทับข้อมูลบน)
+            // --- ส่วนเสริมสำหรับดึงข้อมูลพัสดุ 10 รายการไปพิมพ์ลงบน PDF แบบระบุพิกัด Y อิสระ ---
             ctx.font = "normal 12px 'Sarabun', sans-serif";
-            let currentYPosition = 450; 
-            const rowSpacing = 20; // ระยะห่างแต่ละบรรทัดรายการ
+            
+            // กำหนดค่าตำแหน่งแกน Y สำหรับแต่ละบรรทัด (1 ถึง 10) แยกกันแบบอิสระ คุณสามารถแก้ไขตัวเลขพิกัดตรงนี้ได้ตามต้องการ
+            const yPositions = {
+                1: 450,
+                2: 470,
+                3: 490,
+                4: 510,
+                5: 530,
+                6: 550,
+                7: 571,
+                8: 591,
+                9: 612,
+                10: 632
+            };
 
             for (let i = 1; i <= 10; i++) {
                 const title = document.getElementById(`item_title_${i}`).value.trim();
@@ -685,14 +697,14 @@
                 const unit = document.getElementById(`item_unit_${i}`).value.trim();
                 const spec = document.getElementById(`item_spec_${i}`).value.trim();
 
-                // หากมีข้อมูลช่องใดช่องหนึ่งในแถว ให้ดำเนินการพิมพ์ลงไป
+                // หากมีข้อมูลช่องใดช่องหนึ่งในแถว ให้ดำเนินการพิมพ์ลงไปตามตำแหน่งแกน Y ที่กำหนดแยกไว้
                 if (title || brand || qty || unit || spec) {
+                    let currentYPosition = yPositions[i];
                     ctx.fillText(title, 37, currentYPosition);
                     ctx.fillText(brand, 332, currentYPosition);
                     ctx.fillText(qty, 540, currentYPosition);
                     ctx.fillText(unit, 607, currentYPosition);
                     ctx.fillText(spec, 652, currentYPosition);
-                    currentYPosition += rowSpacing;
                 }
             }
             
@@ -876,9 +888,15 @@
         }
     }
 
-    function checkAuth() {
-        currentPwdType = 'approve';
-        document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
+    function checkAuth(type) {
+        currentPwdType = type;
+        if (type === 'approve') {
+            document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
+        } else if (type === 'debug') {
+            // ใช้ประเภทและเงื่อนไขตรวจสอบรหัสเดียวกับหน้าอนุมัติ
+            currentPwdType = 'approve'; 
+            document.getElementById('modalTitle').innerText = "รหัสเข้าหน้า @MIN";
+        }
         openModal();
     }
 
@@ -927,11 +945,17 @@
             document.getElementById('loadingOverlay').style.display = 'none';
 
             if (String(result.success).toLowerCase() === "true") {
+                const checkedType = currentPwdType;
                 closeModal();
-                if (currentPwdType === 'approve') {
+                
+                // ตรวจสอบจากหัวข้อ Modal เพื่อแยกระหว่างหน้า Approve กับ Debug
+                const modalTitleText = document.getElementById('modalTitle').innerText;
+                if (modalTitleText === "รหัสเข้าหน้า @MIN") {
+                    showView('debugView');
+                } else if (checkedType === 'approve') {
                     showView('approveView');
                     fetchApproveList();
-                } else if (currentPwdType === 'delete') {
+                } else if (checkedType === 'delete') {
                     executeDelete(currentDeleteId); 
                 }
             } else {
