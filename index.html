@@ -189,7 +189,7 @@
             <span class="toggle-password" onclick="togglePwd()">👁️</span>
         </div>
         <button class="action-btn" onclick="submitPassword()">ตกลง</button>
-        <button class="back-btn" onclick="closeModal()">ยกเลิก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="closeModal()">ยกเลิก</button>
     </div>
 </div>
     
@@ -353,7 +353,8 @@
             </table>
         </div>
 
-        <button class="action-btn" style="background: var(--success); margin-top: 20px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
+        <button class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
@@ -498,6 +499,11 @@
         generatePDF(currentTemplateName, currentSuffix);
     }
 
+    // เรียกฟังก์ชันประมวลผลสร้าง PDF และอัปโหลดไปยังระบบทันที
+    function triggerPDFDirectUpload() {
+        generateAndUploadPDF(currentTemplateName, currentSuffix);
+    }
+
     // ฟังก์ชันเดิม: ตรวจสอบรายชื่อผู้สร้าง TOR จาก Google Sheet
     async function verifyCreator() {
         const creatorInput = document.getElementById('creatorInput');
@@ -612,7 +618,79 @@
         return true;
     }
 
-    // ฟังก์ชันสร้าง PDF ที่ดึงข้อมูลจากหน้าหลัก + ข้อมูลรายการพัสดุ 10 รายการเพื่อพิมพ์ลงบนแคนวาสภาพโปร่งใส
+    // ฟังก์ชันสร้างแคนวาสของหน้าเอกสารหลักและข้อมูลตารางพัสดุ 10 รายการ
+    async function buildDocumentCanvas(suffix) {
+        const val1 = document.getElementById(`input1_${suffix}`).value || "";
+        const val2 = document.getElementById(`input2_${suffix}`).value || "";
+        const val3 = document.getElementById(`input3_${suffix}`).value || "";
+        const val4 = document.getElementById(`input4_${suffix}`).value || "";
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = 1000;
+        canvas.height = 1200;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.font = "normal 14px 'Sarabun', sans-serif";
+        ctx.fillStyle = "#1e293b";
+        
+        ctx.fillText(val1, 160, 170);
+        ctx.fillText(val2, 0, 337);
+        ctx.fillText(val3, 853, 108);
+        ctx.fillText(val4, 895, 170);  
+
+        ctx.font = "normal 14px 'Sarabun', sans-serif";
+        ctx.fillStyle = "#0f172a";
+        
+        ctx.fillText(globalSheetData.d, 853, 76);
+        ctx.fillText(globalSheetData.e, 160, 108);
+        ctx.fillText(globalSheetData.f, 455, 108);
+        ctx.fillText(globalSheetData.g, 160, 139);
+
+        const now = new Date();
+        const dayStr = String(now.getDate()).padStart(2, '0');
+        const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+        const yearStr = String(now.getFullYear() + 543).slice(-2); 
+        const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
+        
+        ctx.fillText(currentDateFormatted, 160, 76);
+        
+        ctx.font = "normal 12px 'Sarabun', sans-serif";
+        
+        const yPositions = {
+            1: 412,
+            2: 444,
+            3: 478,
+            4: 512,
+            5: 543,
+            6: 578,
+            7: 611,
+            8: 645,
+            9: 678,
+            10: 712
+        };
+
+        for (let i = 1; i <= 10; i++) {
+            const title = document.getElementById(`item_title_${i}`).value.trim();
+            const brand = document.getElementById(`item_brand_${i}`).value.trim();
+            const qty = document.getElementById(`item_qty_${i}`).value.trim();
+            const unit = document.getElementById(`item_unit_${i}`).value.trim();
+            const spec = document.getElementById(`item_spec_${i}`).value.trim();
+
+            if (title || brand || qty || unit || spec) {
+                let currentYPosition = yPositions[i];
+                ctx.fillText(title, 37, currentYPosition);
+                ctx.fillText(brand, 332, currentYPosition);
+                ctx.fillText(qty, 540, currentYPosition);
+                ctx.fillText(unit, 607, currentYPosition);
+                ctx.fillText(spec, 652, currentYPosition);
+            }
+        }
+        return canvas;
+    }
+
+    // ฟังก์ชันสร้าง PDF และดาวน์โหลดลงเครื่องพร้อมเปลี่ยนชื่อตาม "ชื่องาน"
     async function generatePDF(templateName, suffix) {
         if (!templateName || !suffix) {
             alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง กรุณาเริ่มกระบวนการเลือกใหม่อีกครั้ง");
@@ -623,13 +701,10 @@
         document.getElementById('loadingText').innerText = `กำลังดึงไฟล์เทมเพลตและประมวลผล PDF...`;
 
         try {
-            // 1. ดึงค่าจากหน้าฟอร์มข้อมูลหลัก
-            const val1 = document.getElementById(`input1_${suffix}`).value || "";
-            const val2 = document.getElementById(`input2_${suffix}`).value || "";
-            const val3 = document.getElementById(`input3_${suffix}`).value || "";
-            const val4 = document.getElementById(`input4_${suffix}`).value || "";
+            // โดนดึงค่าจากช่อง ชื่องาน เพื่อนำมาตั้งเป็นชื่อไฟล์เอกสารปลายทาง
+            const workNameValue = document.getElementById(`input1_${suffix}`).value.trim();
+            const finalFileName = workNameValue ? `${workNameValue}.pdf` : `TOR_${templateName.split('.')[0]}_Generated.pdf`;
 
-            // 2. โหลดไฟล์แม่แบบต้นฉบับ
             const templateBytes = await fetch(templateName).then(res => {
                 if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
                 return res.arrayBuffer();
@@ -638,77 +713,7 @@
             const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
             const firstPage = pdfDoc.getPages()[0];
             
-            // --- ขั้นตอนการทำภาพโปร่งใสทับหน้าเอกสาร ---
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = 1000;
-            canvas.height = 1200;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // เขียนข้อมูลฟอร์มหลักภาษาไทย
-            ctx.font = "normal 14px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#1e293b";
-            
-            ctx.fillText(val1, 160, 170);
-            ctx.fillText(val2, 0, 337);
-            ctx.fillText(val3, 853, 108);
-            ctx.fillText(val4, 895, 170);  
-
-            // วาดข้อมูลส่วนตรวจสอบชีตและผู้สร้าง
-            ctx.font = "normal 14px 'Sarabun', sans-serif";
-            ctx.fillStyle = "#0f172a";
-            
-            ctx.fillText(globalSheetData.d, 853, 76);
-            ctx.fillText(globalSheetData.e, 160, 108);
-            ctx.fillText(globalSheetData.f, 455, 108);
-            ctx.fillText(globalSheetData.g, 160, 139);
-
-            // คำนวณจัดการวันที่สร้าง ณ ปัจจุบัน
-            const now = new Date();
-            const dayStr = String(now.getDate()).padStart(2, '0');
-            const monthStr = String(now.getMonth() + 1).padStart(2, '0');
-            const yearStr = String(now.getFullYear() + 543).slice(-2); 
-            const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
-            
-            ctx.fillText(currentDateFormatted, 160, 76);
-            
-            // --- ส่วนเสริมสำหรับดึงข้อมูลพัสดุ 10 รายการไปพิมพ์ลงบน PDF แบบระบุพิกัด Y อิสระ ---
-            ctx.font = "normal 12px 'Sarabun', sans-serif";
-            
-            // กำหนดค่าตำแหน่งแกน Y สำหรับแต่ละบรรทัด (1 ถึง 10) แยกกันแบบอิสระ คุณสามารถแก้ไขตัวเลขพิกัดตรงนี้ได้ตามต้องการ
-            const yPositions = {
-                1: 412,
-                2: 444,
-                3: 478,
-                4: 512,
-                5: 543,
-                6: 578,
-                7: 611,
-                8: 645,
-                9: 678,
-                10: 712
-            };
-
-            for (let i = 1; i <= 10; i++) {
-                const title = document.getElementById(`item_title_${i}`).value.trim();
-                const brand = document.getElementById(`item_brand_${i}`).value.trim();
-                const qty = document.getElementById(`item_qty_${i}`).value.trim();
-                const unit = document.getElementById(`item_unit_${i}`).value.trim();
-                const spec = document.getElementById(`item_spec_${i}`).value.trim();
-
-                // หากมีข้อมูลช่องใดช่องหนึ่งในแถว ให้ดำเนินการพิมพ์ลงไปตามตำแหน่งแกน Y ที่กำหนดแยกไว้
-                if (title || brand || qty || unit || spec) {
-                    let currentYPosition = yPositions[i];
-                    ctx.fillText(title, 37, currentYPosition);
-                    ctx.fillText(brand, 332, currentYPosition);
-                    ctx.fillText(qty, 540, currentYPosition);
-                    ctx.fillText(unit, 607, currentYPosition);
-                    ctx.fillText(spec, 652, currentYPosition);
-                }
-            }
-            
-            // แปลงแคนวาสเป็น base64 ฝังลงแผ่น PDF
+            const canvas = await buildDocumentCanvas(suffix);
             const pngDataUrl = canvas.toDataURL('image/png');
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
@@ -724,10 +729,72 @@
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `TOR_${templateName.split('.')[0]}_Generated.pdf`;
+            link.download = finalFileName;
             link.click();
 
             alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
+        } catch (error) {
+            console.error(error);
+            alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+        } finally {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    }
+
+    // ฟังก์ชันสร้าง PDF และส่งเข้าสู่ระบบ (Drive) โดยตรงโดยไม่ต้องทำการดาวน์โหลดลงคอมพิวเตอร์ก่อน
+    async function generateAndUploadPDF(templateName, suffix) {
+        if (!templateName || !suffix) {
+            alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง ไม่สามารถส่งข้อมูลได้");
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingText').innerText = `กำลังจัดทำระบบเอกสารและส่งข้อมูลไปยังเซิร์ฟเวอร์...`;
+
+        try {
+            const workNameValue = document.getElementById(`input1_${suffix}`).value.trim();
+            const finalFileName = workNameValue ? `${workNameValue}.pdf` : `TOR_${templateName.split('.')[0]}_Generated.pdf`;
+
+            const templateBytes = await fetch(templateName).then(res => {
+                if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
+                return res.arrayBuffer();
+            });
+            
+            const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
+            const firstPage = pdfDoc.getPages()[0];
+            
+            const canvas = await buildDocumentCanvas(suffix);
+            const pngDataUrl = canvas.toDataURL('image/png');
+            const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
+            const embeddedImg = await pdfDoc.embedPng(textImgBytes);
+            
+            firstPage.drawImage(embeddedImg, {
+                x: 30,
+                y: 100,
+                width: 535,
+                height: 642
+            });
+
+            const pdfBase64 = await pdfDoc.saveAsBase64();
+
+            const data = {
+                base64: pdfBase64,
+                type: "application/pdf",
+                name: finalFileName
+            };
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            if (result.result === "success") {
+                alert(`🚀 สร้างแผ่นงานเอกสารและส่ง TOR [ ${finalFileName} ] เข้าสู่ระบบสำเร็จเรียบร้อยแล้ว!`);
+                showView('homeView');
+            } else {
+                alert("❌ เกิดปัญหาไม่สามารถอัปโหลดข้อมูลไปยังฐานระบบได้");
+            }
         } catch (error) {
             console.error(error);
             alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
@@ -893,7 +960,6 @@
         if (type === 'approve') {
             document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
         } else if (type === 'debug') {
-            // ใช้ประเภทและเงื่อนไขตรวจสอบรหัสเดียวกับหน้าอนุมัติ
             currentPwdType = 'approve'; 
             document.getElementById('modalTitle').innerText = "รหัสเข้าหน้า @MIN";
         }
@@ -948,7 +1014,6 @@
                 const checkedType = currentPwdType;
                 closeModal();
                 
-                // ตรวจสอบจากหัวข้อ Modal เพื่อแยกระหว่างหน้า Approve กับ Debug
                 const modalTitleText = document.getElementById('modalTitle').innerText;
                 if (modalTitleText === "รหัสเข้าหน้า @MIN") {
                     showView('debugView');
