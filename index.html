@@ -592,11 +592,11 @@
             ctx.fillStyle = "#0f172a";
             
             // วาดข้อมูลที่มาจากการกรอกฟอร์มแรกและดึงจากคอลัมน์ชีต (กำหนดพิกัด Y ด้านล่างเพื่อไม่ให้ทับกับข้อมูลหลัก)
-            ctx.fillText(globalCreatorName, 60, currentY + 30);
-            ctx.fillText(globalSheetData.d, 60, currentY + 65);
-            ctx.fillText(globalSheetData.e, 60, currentY + 100);
-            ctx.fillText(globalSheetData.f, 60, currentY + 135);
-            ctx.fillText(globalSheetData.g, 60, currentY + 170);
+            ctx.fillText(globalCreatorName, 60, 30);
+            ctx.fillText(globalSheetData.d, 60, 65);
+            ctx.fillText(globalSheetData.e, 160, 100);
+            ctx.fillText(globalSheetData.f, 60, 135);
+            ctx.fillText(globalSheetData.g, 60, 170);
 
             // สร้าง Format วันเดือนปีปัจจุบัน (วว/ดด/พ.ศ.สองหลักย่อ) เช่น 30/05/69
             const now = new Date();
@@ -605,7 +605,7 @@
             const yearStr = String(now.getFullYear() + 543).slice(-2); // แปลงเป็น พ.ศ. และเอาแค่ 2 หลักท้าย
             const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
             
-            ctx.fillText(currentDateFormatted, 160, 78);
+            ctx.fillText(currentDateFormatted, 160, 77);
             
             // ดึงข้อมูลรูปภาพจาก Canvas ออกมาในรูปแบบ Data URL PNG โปร่งใส
             const pngDataUrl = canvas.toDataURL('image/png');
