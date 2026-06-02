@@ -33,7 +33,7 @@
         .view.active { display: block; animation: slideUp 0.4s cubic-bezier(0, 0.55, 0.45, 1); }
 
         /* ขยายขนาดความกว้างเฉพาะหน้ากรอกตารางรายการเพื่อให้กรอกง่ายขึ้น */
-        #itemsDataView, #imageAttachmentView { max-width: 650px; }
+        #itemsDataView, #imageAttachmentView, #jobAttachmentView { max-width: 650px; }
 
         @keyframes slideUp { 
             from { opacity: 0; transform: translateY(20px); } 
@@ -225,7 +225,7 @@
 <div id="homeView" class="view active">
     <div class="card">
         <h2>TOR Management</h2>
-        <p>ยินดีต้อนรับสู่ระบบจัดการเอกสาร</p>
+        <p>ยินดีต้วนรับสู่ระบบจัดการเอกสาร</p>
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
             <button class="menu-btn" onclick="showView('creatorCheckView')">สร้าง TOR</button>
@@ -245,7 +245,7 @@
             <input type="text" id="creatorInput" placeholder="พิมพ์ชื่อผู้สร้าง TOR">
         </div>
         <button class="action-btn" onclick="verifyCreator()">ถัดไป</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -276,7 +276,7 @@
 
         <button id="finalSubmitBtn" class="action-btn" style="display: none;" onclick="uploadToDrive()">ส่งอนุมัติเอกสาร</button>
         
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -406,7 +406,7 @@
             <button id="viewTorStatusBtn" class="action-btn" style="background: #475569; margin-top: 10px; display: none;" onclick="showView('statusView')">สถานะ TOR</button>
             <button id="downloadPdfBtn" class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
             <button id="itemsBackBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
-            <button id="itemsHomeBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+            <button id="itemsHomeBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
         </div>
         
         <div id="t2t3ActionButtons" style="display: none;">
@@ -448,9 +448,36 @@
         </div>
 
         <button id="imageUploadSystemBtn" class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
-        <button class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button id="t2DownloadBtn" class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button id="t3NextBtn" class="action-btn" style="background: var(--primary); margin-top: 10px; display: none;" onclick="showView('jobAttachmentView')">ถัดไป</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('itemsDataView')">ย้อนกลับ</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button id="imageHomeBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
+    </div>
+</div>
+
+<div id="jobAttachmentView" class="view">
+    <div class="card">
+        <h2>แนบรูปภาพใบ JOB ประกอบเอกสาร TOR</h2>
+        <p>สำหรับแสดงในส่วนแนบเอกสารใบ JOB (หน้าที่ 3 ของเอกสาร)</p>
+        
+        <div class="input-group">
+            <label>รูปภาพใบ JOB (แนบได้ 1 ภาพ)</label>
+            <div class="upload-area" onclick="document.getElementById('imageInputJob').click()">
+                <div style="font-size: 32px; margin-bottom: 5px;">📄</div>
+                <div id="uploadLabelJob">คลิกเพื่อเลือกรูปภาพใบ JOB</div>
+                <div id="previewBoxJob" class="image-preview-box">
+                    <img id="imgPreviewJob" src="">
+                </div>
+                <input type="file" id="imageInputJob" hidden accept="image/*" onchange="handleJobImageFile(this)">
+            </div>
+            <button type="button" id="btnRemoveJob" class="btn-remove-image" onclick="removeJobImage(event)">❌ ลบรูปภาพใบ JOB</button>
+        </div>
+
+        <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าระบบ</button>
+        <button class="action-btn" style="background: #475569; margin-top: 10px;" onclick="showView('statusView')">สถานะ TOR</button>
+        <button class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('imageAttachmentView')">ย้อนกลับ</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -477,7 +504,7 @@
             </table>
         </div>
         
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -501,7 +528,7 @@
             </table>
         </div>
         
-        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
 
@@ -511,7 +538,7 @@
         <p>ตรวจสอบค่าที่ดึงมาจาก Google Sheet</p>
         <button class="action-btn" onclick="loadDebugPasswords()">โหลดข้อมูลรหัส</button>
         <div style="margin-top:20px; text-align:left; background:#0f172a; color:#22c55e; padding:15px; border-radius:12px; max-height:500px; overflow:auto; font-family:monospace; white-space:pre-wrap;" id="debugOutput">ยังไม่มีข้อมูล</div>
-        <button class="action-btn" style="background:#64748b; margin-top:20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        <button class="action-btn" style="background:#64748b; margin-top:20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
     </div>
 </div>
     
@@ -534,6 +561,7 @@
     // ตัวแปรสำหรับจัดเก็บ Base64 รูปภาพชั่วคราวขณะเปิดหน้าเว็บ (ไม่ถูกบันทึกค้างไว้ในตัวระบบ)
     let base64ImageTop = null;
     let base64ImageBottom = null;
+    let base64ImageJob = null; // เพิ่มการเก็บภาพใบ JOB
 
     // สร้างตารางกรอกรายการสินค้า 10 แถวเมื่อเริ่มต้นโหลดหน้าเว็บ
     function buildItemsTableRows() {
@@ -555,6 +583,32 @@
     }
     buildItemsTableRows();
 
+    // ฟังก์ชันสำหรับล้างข้อมูลทุกอย่างเป็นค่าเริ่มต้นแบบสมบูรณ์
+    function resetAllInputsToDefault() {
+        globalCreatorName = "";
+        globalSheetData = { d: "", e: "", f: "", g: "" };
+        currentTemplateName = "";
+        currentSuffix = "";
+        currentSourceViewId = "";
+        
+        // ล้างช่องกรอกข้อความทั่วไปของทุก Template
+        document.querySelectorAll('input[type="text"]').forEach(input => input.value = "");
+        
+        // สร้างตารางพัสดุใหม่เพื่อเคลียร์ค่าแถว 1-10
+        buildItemsTableRows();
+        
+        // ล้างไฟล์อัปโหลดและรูปภาพพรีวิว
+        resetSendForm();
+        resetImageUploads();
+        resetJobImageUpload();
+    }
+
+    // ฟังก์ชันสั่งนำทางกลับหน้าหลักและล้างข้อมูลเก่าออกทันที
+    function navigateToHome() {
+        resetAllInputsToDefault();
+        showView('homeView');
+    }
+
     function showView(id) {
         resetSendForm(); 
 
@@ -568,6 +622,26 @@
         if (id === 'approveView') {
             fetchApproveList();
         }
+
+        // จัดการเปิด-ปิดการแสดงผลปุ่มควบคุมตามเงื่อนไขของเทมเพลตที่เลือกในหน้า Image Attachment
+        if (id === 'imageAttachmentView') {
+            const uploadBtn = document.getElementById('imageUploadSystemBtn');
+            const downloadBtn = document.getElementById('t2DownloadBtn');
+            const nextBtn = document.getElementById('t3NextBtn');
+            const homeBtn = document.getElementById('imageHomeBtn');
+            
+            if (currentSuffix === 't3') {
+                if (uploadBtn) uploadBtn.style.display = 'none';
+                if (downloadBtn) downloadBtn.style.display = 'none';
+                if (nextBtn) nextBtn.style.display = 'inline-block';
+                if (homeBtn) homeBtn.style.display = 'none'; // ซ่อนปุ่มกลับหน้าหลักของ t3 ตามคำสั่ง
+            } else {
+                if (uploadBtn) uploadBtn.style.display = 'none'; // ซ่อนออกจากหน้าแนบรูปภาพตามของเดิม
+                if (downloadBtn) downloadBtn.style.display = 'inline-block';
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (homeBtn) homeBtn.style.display = 'inline-block';
+            }
+        }
     }
 
     // ฟังก์ชันช่วยในการตั้งค่ารูปแบบก่อนเข้าหน้ากรอกข้อมูลหลัก
@@ -578,6 +652,7 @@
         
         // ล้างข้อมูลรูปภาพเก่าทิ้งเมื่อเริ่มต้นเลือกเทมเพลตใหม่เพื่อความปลอดภัย
         resetImageUploads();
+        resetJobImageUpload();
         showView(viewId);
     }
 
@@ -591,11 +666,11 @@
         if (currentSuffix === 't1') {
             t1Layout.style.display = 'block';
             t2t3Layout.style.display = 'none';
-            submitBtn.style.display = 'none'; // 🛠️ แก้ไขข้อที่ 1: ซ่อนปุ่ม ส่ง TOR ของ Template 1 ในหน้านี้ตามสั่ง
+            submitBtn.style.display = 'none'; 
             statusBtn.style.display = 'none'; 
         } else if (currentSuffix === 't2' || currentSuffix === 't3') {
             t1Layout.style.display = 'none';
-            t2t3Layout.style.display = 'block'; // 🛠️ แก้ไขข้อที่ 2: แสดง Layout ที่มีปุ่มย้อนกลับสำหรับ T2 และ T3
+            t2t3Layout.style.display = 'block'; 
         }
         showView('itemsDataView');
     }
@@ -620,22 +695,38 @@
                     document.getElementById('imgPreviewTop').src = e.target.result;
                     document.getElementById('previewBoxTop').style.display = 'flex';
                     document.getElementById('uploadLabelTop').innerText = "เปลี่ยนรูปภาพด้านบน";
-                    document.getElementById('btnRemoveTop').style.display = 'inline-block'; // แสดงปุ่มลบรูปภาพ
+                    document.getElementById('btnRemoveTop').style.display = 'inline-block'; 
                 } else {
                     base64ImageBottom = e.target.result;
                     document.getElementById('imgPreviewBottom').src = e.target.result;
                     document.getElementById('previewBoxBottom').style.display = 'flex';
                     document.getElementById('uploadLabelBottom').innerText = "เปลี่ยนรูปภาพด้านล่าง";
-                    document.getElementById('btnRemoveBottom').style.display = 'inline-block'; // แสดงปุ่มลบรูปภาพ
+                    document.getElementById('btnRemoveBottom').style.display = 'inline-block'; 
                 }
             };
             reader.readAsDataURL(file);
         }
     }
 
-    // 🛠️ ฟังก์ชันสำหรับลบรูปภาพที่เลือกไปแล้วรายตำแหน่ง (แก้ไขข้อที่ 2)
+    // จัดการแปลงและพรีวิวไฟล์รูปภาพใบ JOB
+    function handleJobImageFile(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                base64ImageJob = e.target.result;
+                document.getElementById('imgPreviewJob').src = e.target.result;
+                document.getElementById('previewBoxJob').style.display = 'flex';
+                document.getElementById('uploadLabelJob').innerText = "เปลี่ยนรูปภาพใบ JOB";
+                document.getElementById('btnRemoveJob').style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // ฟังก์ชันสำหรับลบรูปภาพที่เลือกไปแล้วรายตำแหน่ง
     function removeSelectedImage(position, event) {
-        if(event) event.stopPropagation(); // ป้องกันการ trigger คลิกพท. upload-area ซ้ำ
+        if(event) event.stopPropagation(); 
         
         if (position === 'Top') {
             base64ImageTop = null;
@@ -654,18 +745,38 @@
         }
     }
 
+    // ฟังก์ชันลบรูปใบ JOB
+    function removeJobImage(event) {
+        if(event) event.stopPropagation();
+        base64ImageJob = null;
+        document.getElementById('imageInputJob').value = "";
+        document.getElementById('previewBoxJob').style.display = 'none';
+        document.getElementById('imgPreviewJob').src = "";
+        document.getElementById('uploadLabelJob').innerText = "คลิกเพื่อเลือกรูปภาพใบ JOB";
+        document.getElementById('btnRemoveJob').style.display = 'none';
+    }
+
     // ล้างค่ารูปภาพชั่วคราวทั้งหมด
     function resetImageUploads() {
         base64ImageTop = null;
         base64ImageBottom = null;
-        document.getElementById('imageInputTop').value = "";
-        document.getElementById('imageInputBottom').value = "";
-        document.getElementById('previewBoxTop').style.display = 'none';
-        document.getElementById('previewBoxBottom').style.display = 'none';
-        document.getElementById('uploadLabelTop').innerText = "คลิกเพื่อเลือกรูปภาพด้านบน";
-        document.getElementById('uploadLabelBottom').innerText = "คลิกเพื่อเลือกรูปภาพด้านล่าง";
+        if(document.getElementById('imageInputTop')) document.getElementById('imageInputTop').value = "";
+        if(document.getElementById('imageInputBottom')) document.getElementById('imageInputBottom').value = "";
+        if(document.getElementById('previewBoxTop')) document.getElementById('previewBoxTop').style.display = 'none';
+        if(document.getElementById('previewBoxBottom')) document.getElementById('previewBoxBottom').style.display = 'none';
+        if(document.getElementById('uploadLabelTop')) document.getElementById('uploadLabelTop').innerText = "คลิกเพื่อเลือกรูปภาพด้านบน";
+        if(document.getElementById('uploadLabelBottom')) document.getElementById('uploadLabelBottom').innerText = "คลิกเพื่อเลือกรูปภาพด้านล่าง";
         if(document.getElementById('btnRemoveTop')) document.getElementById('btnRemoveTop').style.display = 'none';
         if(document.getElementById('btnRemoveBottom')) document.getElementById('btnRemoveBottom').style.display = 'none';
+    }
+
+    // ล้างค่ารูปใบ JOB
+    function resetJobImageUpload() {
+        base64ImageJob = null;
+        if(document.getElementById('imageInputJob')) document.getElementById('imageInputJob').value = "";
+        if(document.getElementById('previewBoxJob')) document.getElementById('previewBoxJob').style.display = 'none';
+        if(document.getElementById('uploadLabelJob')) document.getElementById('uploadLabelJob').innerText = "คลิกเพื่อเลือกรูปภาพใบ JOB";
+        if(document.getElementById('btnRemoveJob')) document.getElementById('btnRemoveJob').style.display = 'none';
     }
 
     // รวบรวมข้อมูลรายการพัสดุและสั่ง Generate PDF
@@ -766,7 +877,7 @@
 
         document.getElementById('loadingOverlay').style.display = 'none';
         alert(`🚀 ส่งสำเร็จทั้งหมด ${successCount} จาก ${selectedFiles.length} ไฟล์`);
-        showView('homeView');
+        navigateToHome();
     }
 
     function resetSendForm() {
@@ -871,26 +982,23 @@
     // ฟังก์ชันสำหรับฝังรูปภาพลงในหน้า 2 ของเอกสาร PDF คอนฟิกค่าตำแหน่งและขนาดตรงนี้ได้เลย
     async function embedImagesToSecondPage(pdfDoc) {
         const pages = pdfDoc.getPages();
-        if (pages.length < 2) return; // หาก PDF ต้นฉบับมีไม่ถึง 2 หน้าจะไม่ทำงานส่วนนี้
+        if (pages.length < 2) return; 
         const secondPage = pages[1];
 
-        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านบน (Top Image Configurations)
         const topConfig = {
-            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
-            y: 430,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
-            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งบน
-            height: 280    // ขนาดความสูงรูปภาพตำแหน่งบน
+            x: 60,         
+            y: 430,        
+            width: 475,    
+            height: 280    
         };
 
-        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านล่าง (Bottom Image Configurations)
         const bottomConfig = {
-            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
-            y: 100,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
-            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งล่าง
-            height: 280    // ขนาดความสูงรูปภาพตำแหน่งล่าง
+            x: 60,         
+            y: 100,        
+            width: 475,    
+            height: 280    
         };
 
-        // ประมวลผลรูปภาพตำแหน่งด้านบน
         if (base64ImageTop) {
             try {
                 const imgBytes = await fetch(base64ImageTop).then(res => res.arrayBuffer());
@@ -906,7 +1014,6 @@
             }
         }
 
-        // ประมวลผลรูปภาพตำแหน่งด้านล่าง
         if (base64ImageBottom) {
             try {
                 const imgBytes = await fetch(base64ImageBottom).then(res => res.arrayBuffer());
@@ -919,6 +1026,35 @@
                 secondPage.drawImage(embeddedImg, bottomConfig);
             } catch (e) {
                 console.error("Error embedding bottom image: ", e);
+            }
+        }
+    }
+
+    // ฟังก์ชันสำหรับฝังรูปใบ JOB ลงในหน้า 3 ของเอกสาร PDF คอนฟิกค่าตำแหน่งและขนาดตรงนี้ได้เลย
+    async function embedJobImageToThirdPage(pdfDoc) {
+        const pages = pdfDoc.getPages();
+        if (pages.length < 3) return; 
+        const thirdPage = pages[2];
+
+        const jobConfig = {
+            x: 60,         
+            y: 260,        
+            width: 475,    
+            height: 600    
+        };
+
+        if (base64ImageJob) {
+            try {
+                const imgBytes = await fetch(base64ImageJob).then(res => res.arrayBuffer());
+                let embeddedImg;
+                if (base64ImageJob.includes('image/png')) {
+                    embeddedImg = await pdfDoc.embedPng(imgBytes);
+                } else {
+                    embeddedImg = await pdfDoc.embedJpg(imgBytes);
+                }
+                thirdPage.drawImage(embeddedImg, jobConfig);
+            } catch (e) {
+                console.error("Error embedding job image: ", e);
             }
         }
     }
@@ -962,6 +1098,11 @@
                 await embedImagesToSecondPage(pdfDoc);
             }
 
+            // ทำการวาดรูปภาพแนบใบ JOB ใส่หน้าที่ 3 (เฉพาะ Template 3)
+            if (suffix === 't3') {
+                await embedJobImageToThirdPage(pdfDoc);
+            }
+
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
             const link = document.createElement('a');
@@ -971,7 +1112,9 @@
 
             alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
             
-            if (suffix === 't2' || suffix === 't3') {
+            if (suffix === 't3') {
+                showView('jobAttachmentView');
+            } else if (suffix === 't2') {
                 showView('imageAttachmentView');
             } else {
                 showView('itemsDataView');
@@ -984,7 +1127,7 @@
         }
     }
 
-    // ฟังก์ชันสร้าง PDF และส่งเข้าสู่ระบบ (Drive) โดยตรงโดยไม่ต้องทำการดาวน์โหลดลงคอมพิวเตอร์ก่อน
+    // ฟังก์ชันสร้าง PDF และส่งเข้าสู่ระบบ (Drive) โดยตรงพร้อมใช้ชื่อตาม "ชื่องาน"
     async function generateAndUploadPDF(templateName, suffix) {
         if (!templateName || !suffix) {
             alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง ไม่สามารถส่งข้อมูลได้");
@@ -1023,6 +1166,11 @@
                 await embedImagesToSecondPage(pdfDoc);
             }
 
+            // ทำการวาดรูปภาพแนบใบ JOB ใส่หน้าที่ 3 (เฉพาะ Template 3)
+            if (suffix === 't3') {
+                await embedJobImageToThirdPage(pdfDoc);
+            }
+
             const pdfBase64 = await pdfDoc.saveAsBase64();
 
             const data = {
@@ -1039,7 +1187,9 @@
             const result = await response.json();
             if (result.result === "success") {
                 alert(`🚀 สร้างแผ่นงานเอกสารและส่ง TOR [ ${finalFileName} ] เข้าสู่ระบบสำเร็จเรียบร้อยแล้ว!`);
-                if (suffix === 't2' || suffix === 't3') {
+                if (suffix === 't3') {
+                    showView('jobAttachmentView');
+                } else if (suffix === 't2') {
                     showView('imageAttachmentView');
                 } else {
                     showView('itemsDataView');
@@ -1228,21 +1378,6 @@
     function openModal() {
         document.getElementById('modalInput').value = '';
         document.getElementById('pwdModal').style.display = 'flex';
-    }
-
-    const originalShowView = showView;
-    showView = function(id) {
-        originalShowView(id);
-        if (id === 'statusView') {
-            fetchStatus();
-        }
-        // 🛠️ ตรวจสอบการซ่อนปุ่ม "ส่ง TOR เข้าสู่ระบบ" ในหน้าภาพถ่ายให้สอดคล้องกับความต้องการ
-        if (id === 'imageAttachmentView') {
-            const uploadBtn = document.getElementById('imageUploadSystemBtn');
-            if (uploadBtn) {
-                uploadBtn.style.display = 'none'; // ซ่อนออกจากหน้าแนบรูปภาพถาวรตามสั่ง
-            }
-        }
     }
 
     function closeModal() {
