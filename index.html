@@ -32,7 +32,7 @@
         .view.active { display: block; animation: slideUp 0.4s cubic-bezier(0, 0.55, 0.45, 1); }
 
         /* ขยายขนาดความกว้างเฉพาะหน้ากรอกตารางรายการเพื่อให้กรอกง่ายขึ้น */
-        #itemsDataView { max-width: 650px; }
+        #itemsDataView, #imageAttachmentView { max-width: 650px; }
 
         @keyframes slideUp { 
             from { opacity: 0; transform: translateY(20px); } 
@@ -177,6 +177,13 @@
             cursor: pointer; color: #64748b;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* สไตล์หน้าแนบรูปภาพเพิ่มเติม */
+        .image-preview-box {
+            width: 100%; max-height: 180px; overflow: hidden; border: 1px solid #cbd5e1;
+            border-radius: 8px; margin-top: 10px; display: none; justify-content: center; align-items: center;
+        }
+        .image-preview-box img { max-width: 100%; max-height: 180px; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -201,7 +208,7 @@
 <div id="homeView" class="view active">
     <div class="card">
         <h2>TOR Management</h2>
-        <p>ยินดีต้วนรับสู่ระบบจัดการเอกสาร</p>
+        <p>ยินดีต้อนรับสู่ระบบจัดการเอกสาร</p>
         <div class="menu-grid">
             <button class="menu-btn" onclick="showView('sendView')">ส่ง TOR</button>
             <button class="menu-btn" onclick="showView('creatorCheckView')">สร้าง TOR</button>
@@ -377,10 +384,52 @@
             </table>
         </div>
 
-        <button id="submitTorDirectBtn" class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
-        <button id="viewTorStatusBtn" class="action-btn" style="background: #475569; margin-top: 10px; display: none;" onclick="showView('statusView')">สถานะ TOR</button>
+        <div id="t1ActionButtons">
+            <button id="submitTorDirectBtn" class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
+            <button id="viewTorStatusBtn" class="action-btn" style="background: #475569; margin-top: 10px; display: none;" onclick="showView('statusView')">สถานะ TOR</button>
+            <button id="downloadPdfBtn" class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+            <button id="itemsBackBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
+            <button id="itemsHomeBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
+        </div>
+        
+        <div id="t2t3ActionButtons" style="display: none;">
+            <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="showView('imageAttachmentView')">ถัดไป</button>
+        </div>
+    </div>
+</div>
+
+<div id="imageAttachmentView" class="view">
+    <div class="card">
+        <h2>แนบรูปภาพประกอบเอกสาร TOR</h2>
+        <p>สำหรับแสดงในส่วนแนบภาพถ่าย (หน้าที่ 2 ของเอกสาร)</p>
+        
+        <div class="input-group">
+            <label>รูปภาพพัสดุ / ตำแหน่งด้านบน</label>
+            <div class="upload-area" onclick="document.getElementById('imageInputTop').click()">
+                <div style="font-size: 32px; margin-bottom: 5px;">📸</div>
+                <div id="uploadLabelTop">คลิกเพื่อเลือกรูปภาพด้านบน</div>
+                <div id="previewBoxTop" class="image-preview-box">
+                    <img id="imgPreviewTop" src="">
+                </div>
+                <input type="file" id="imageInputTop" hidden accept="image/*" onchange="handleImageFile(this, 'Top')">
+            </div>
+        </div>
+
+        <div class="input-group" style="margin-top: 20px;">
+            <label>รูปภาพพัสดุ / ตำแหน่งด้านล่าง</label>
+            <div class="upload-area" onclick="document.getElementById('imageInputBottom').click()">
+                <div style="font-size: 32px; margin-bottom: 5px;">📸</div>
+                <div id="uploadLabelBottom">คลิกเพื่อเลือกรูปภาพด้านล่าง</div>
+                <div id="previewBoxBottom" class="image-preview-box">
+                    <img id="imgPreviewBottom" src="">
+                </div>
+                <input type="file" id="imageInputBottom" hidden accept="image/*" onchange="handleImageFile(this, 'Bottom')">
+            </div>
+        </div>
+
+        <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
         <button class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
-        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
+        <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('itemsDataView')">ย้อนกลับ</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
@@ -462,6 +511,10 @@
     let currentSuffix = "";
     let currentSourceViewId = "";
 
+    // ตัวแปรสำหรับจัดเก็บ Base64 รูปภาพชั่วคราวขณะเปิดหน้าเว็บ (ไม่ถูกบันทึกค้างไว้ในตัวระบบ)
+    let base64ImageTop = null;
+    let base64ImageBottom = null;
+
     // สร้างตารางกรอกรายการสินค้า 10 แถวเมื่อเริ่มต้นโหลดหน้าเว็บ
     function buildItemsTableRows() {
         const tbody = document.getElementById('itemsTableBody');
@@ -502,20 +555,28 @@
         currentTemplateName = templateName;
         currentSuffix = suffix;
         currentSourceViewId = viewId;
+        
+        // ล้างข้อมูลรูปภาพเก่าทิ้งเมื่อเริ่มต้นเลือกเทมเพลตใหม่เพื่อความปลอดภัย
+        resetImageUploads();
         showView(viewId);
     }
 
     // กดปุ่มถัดไปจากหน้า Form หลักเพื่อเข้าสู่หน้ากรอกข้อมูลตารางพัสดุ
     function navigateToItemsView() {
+        const t1Layout = document.getElementById('t1ActionButtons');
+        const t2t3Layout = document.getElementById('t2t3ActionButtons');
         const submitBtn = document.getElementById('submitTorDirectBtn');
         const statusBtn = document.getElementById('viewTorStatusBtn');
         
-        if (currentSuffix === 't1' || currentSuffix === 't2') {
-            submitBtn.style.display = 'none';
-            statusBtn.style.display = 'none';
-        } else if (currentSuffix === 't3') {
+        if (currentSuffix === 't1') {
+            t1Layout.style.display = 'block';
+            t2t3Layout.style.display = 'none';
             submitBtn.style.display = 'block';
-            statusBtn.style.display = 'block';
+            statusBtn.style.display = 'none'; 
+        } else if (currentSuffix === 't2' || currentSuffix === 't3') {
+            // ปรับเปลี่ยน Layout ปุ่มหน้าตารางพัสดุตามเงื่อนไขที่สั่งการ (ให้เหลือแต่ปุ่ม ถัดไป และเอา กลับหน้าหลักออก)
+            t1Layout.style.display = 'none';
+            t2t3Layout.style.display = 'block';
         }
         showView('itemsDataView');
     }
@@ -527,6 +588,40 @@
         } else {
             showView('templateView');
         }
+    }
+
+    // จัดการแปลงและพรีวิวไฟล์รูปภาพพัสดุ
+    function handleImageFile(input, position) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (position === 'Top') {
+                    base64ImageTop = e.target.result;
+                    document.getElementById('imgPreviewTop').src = e.target.result;
+                    document.getElementById('previewBoxTop').style.display = 'flex';
+                    document.getElementById('uploadLabelTop').innerText = "เปลี่ยนรูปภาพด้านบน";
+                } else {
+                    base64ImageBottom = e.target.result;
+                    document.getElementById('imgPreviewBottom').src = e.target.result;
+                    document.getElementById('previewBoxBottom').style.display = 'flex';
+                    document.getElementById('uploadLabelBottom').innerText = "เปลี่ยนรูปภาพด้านล่าง";
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // ล้างค่ารูปภาพชั่วคราว
+    function resetImageUploads() {
+        base64ImageTop = null;
+        base64ImageBottom = null;
+        document.getElementById('imageInputTop').value = "";
+        document.getElementById('imageInputBottom').value = "";
+        document.getElementById('previewBoxTop').style.display = 'none';
+        document.getElementById('previewBoxBottom').style.display = 'none';
+        document.getElementById('uploadLabelTop').innerText = "คลิกเพื่อเลือกรูปภาพด้านบน";
+        document.getElementById('uploadLabelBottom').innerText = "คลิกเพื่อเลือกรูปภาพด้านล่าง";
     }
 
     // รวบรวมข้อมูลรายการพัสดุและสั่ง Generate PDF
@@ -729,6 +824,61 @@
         return canvas;
     }
 
+    // ฟังก์ชันสำหรับฝังรูปภาพลงในหน้า 2 ของเอกสาร PDF คอนฟิกค่าตำแหน่งและขนาดตรงนี้ได้เลย
+    async function embedImagesToSecondPage(pdfDoc) {
+        const pages = pdfDoc.getPages();
+        if (pages.length < 2) return; // หาก PDF ต้นฉบับมีไม่ถึง 2 หน้าจะไม่ทำงานส่วนนี้
+        const secondPage = pages[1];
+
+        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านบน (Top Image Configurations)
+        const topConfig = {
+            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
+            y: 430,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
+            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งบน
+            height: 280    // ขนาดความสูงรูปภาพตำแหน่งบน
+        };
+
+        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านล่าง (Bottom Image Configurations)
+        const bottomConfig = {
+            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
+            y: 100,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
+            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งล่าง
+            height: 280    // ขนาดความสูงรูปภาพตำแหน่งล่าง
+        };
+
+        // ประมวลผลรูปภาพตำแหน่งด้านบน
+        if (base64ImageTop) {
+            try {
+                const imgBytes = await fetch(base64ImageTop).then(res => res.arrayBuffer());
+                let embeddedImg;
+                if (base64ImageTop.includes('image/png')) {
+                    embeddedImg = await pdfDoc.embedPng(imgBytes);
+                } else {
+                    embeddedImg = await pdfDoc.embedJpg(imgBytes);
+                }
+                secondPage.drawImage(embeddedImg, topConfig);
+            } catch (e) {
+                console.error("Error embedding top image: ", e);
+            }
+        }
+
+        // ประมวลผลรูปภาพตำแหน่งด้านล่าง
+        if (base64ImageBottom) {
+            try {
+                const imgBytes = await fetch(base64ImageBottom).then(res => res.arrayBuffer());
+                let embeddedImg;
+                if (base64ImageBottom.includes('image/png')) {
+                    embeddedImg = await pdfDoc.embedPng(imgBytes);
+                } else {
+                    embeddedImg = await pdfDoc.embedJpg(imgBytes);
+                }
+                secondPage.drawImage(embeddedImg, bottomConfig);
+            } catch (e) {
+                console.error("Error embedding bottom image: ", e);
+            }
+        }
+    }
+
     // ฟังก์ชันสร้าง PDF และดาวน์โหลดลงเครื่องพร้อมเปลี่ยนชื่อตาม "ชื่องาน"
     async function generatePDF(templateName, suffix) {
         if (!templateName || !suffix) {
@@ -763,6 +913,11 @@
                 height: 642
             });
 
+            // ทำการวาดรูปภาพแนบใส่หน้าที่ 2 (เฉพาะ Template 2 และ Template 3)
+            if (suffix === 't2' || suffix === 't3') {
+                await embedImagesToSecondPage(pdfDoc);
+            }
+
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: "application/pdf" });
             const link = document.createElement('a');
@@ -771,7 +926,12 @@
             link.click();
 
             alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
-            showView('itemsDataView');
+            
+            if (suffix === 't2' || suffix === 't3') {
+                showView('imageAttachmentView');
+            } else {
+                showView('itemsDataView');
+            }
         } catch (error) {
             console.error(error);
             alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
@@ -814,6 +974,11 @@
                 height: 642
             });
 
+            // ทำการวาดรูปภาพแนบใส่หน้าที่ 2 (เฉพาะ Template 2 และ Template 3)
+            if (suffix === 't2' || suffix === 't3') {
+                await embedImagesToSecondPage(pdfDoc);
+            }
+
             const pdfBase64 = await pdfDoc.saveAsBase64();
 
             const data = {
@@ -830,7 +995,11 @@
             const result = await response.json();
             if (result.result === "success") {
                 alert(`🚀 สร้างแผ่นงานเอกสารและส่ง TOR [ ${finalFileName} ] เข้าสู่ระบบสำเร็จเรียบร้อยแล้ว!`);
-                showView('itemsDataView');
+                if (suffix === 't2' || suffix === 't3') {
+                    showView('imageAttachmentView');
+                } else {
+                    showView('itemsDataView');
+                }
             } else {
                 alert("❌ เกิดปัญหาไม่สามารถอัปโหลดข้อมูลไปยังฐานระบบได้");
             }
