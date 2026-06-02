@@ -82,6 +82,7 @@
             margin-bottom: 20px;
             cursor: pointer;
             transition: 0.2s;
+            position: relative;
         }
         .upload-area:hover { border-color: var(--primary); background: #eff6ff; }
         .file-info { margin-top: 10px; font-size: 0.85rem; color: var(--success); display: none; }
@@ -385,7 +386,6 @@
         </div>
 
         <div id="t1ActionButtons">
-            <button id="submitTorDirectBtn" class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
             <button id="viewTorStatusBtn" class="action-btn" style="background: #475569; margin-top: 10px; display: none;" onclick="showView('statusView')">สถานะ TOR</button>
             <button id="downloadPdfBtn" class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
             <button id="itemsBackBtn" class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
@@ -394,6 +394,7 @@
         
         <div id="t2t3ActionButtons" style="display: none;">
             <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="showView('imageAttachmentView')">ถัดไป</button>
+            <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="handleBackToTemplateView()">ย้อนกลับ</button>
         </div>
     </div>
 </div>
@@ -413,6 +414,7 @@
                 </div>
                 <input type="file" id="imageInputTop" hidden accept="image/*" onchange="handleImageFile(this, 'Top')">
             </div>
+            <button class="action-btn" style="background: #dc3545; padding: 6px; font-size: 0.85rem; margin-top: 5px; display: none;" id="removeBtnTop" onclick="removeSelectedImage('Top')">🗑️ ลบรูปภาพด้านบน</button>
         </div>
 
         <div class="input-group" style="margin-top: 20px;">
@@ -425,10 +427,10 @@
                 </div>
                 <input type="file" id="imageInputBottom" hidden accept="image/*" onchange="handleImageFile(this, 'Bottom')">
             </div>
+            <button class="action-btn" style="background: #dc3545; padding: 6px; font-size: 0.85rem; margin-top: 5px; display: none;" id="removeBtnBottom" onclick="removeSelectedImage('Bottom')">🗑️ ลบรูปภาพด้านล่าง</button>
         </div>
 
-        <button class="action-btn" style="background: var(--primary); margin-top: 20px;" onclick="triggerPDFDirectUpload()">ส่ง TOR เข้าสู่ระบบ</button>
-        <button class="action-btn" style="background: var(--success); margin-top: 10px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
+        <button class="action-btn" style="background: var(--success); margin-top: 20px;" onclick="triggerPDFGeneration()">ดาวน์โหลดเอกสาร PDF</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('itemsDataView')">ย้อนกลับ</button>
         <button class="action-btn" style="background: #64748b; margin-top: 10px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
@@ -436,17 +438,14 @@
 
 <div id="statusView" class="view">
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
-        <h2>สถานะการส่ง TOR</h2>
-        <p>แสดงรายการล่าสุด 30 รายการ</p>
-        
-        <button class="action-btn" onclick="fetchStatus()" style="width: auto; padding: 8px 16px; margin-bottom: 10px; font-size: 0.8rem;">🔄 รีเฟรชข้อมูล</button>
-
+        <h2>สถานะการอนุมัติ TOR</h2>
+        <p>ตรวจสอบความคืบหน้าของเอกสารที่คุณส่งเข้าระบบ</p>
         <div class="status-table-container">
             <table class="status-table">
                 <thead>
                     <tr>
-                        <th>ดู</th>
-                        <th>รายการ</th>
+                        <th>ดูไฟล์</th>
+                        <th>ชื่อเอกสาร</th>
                         <th>สถานะ</th>
                         <th>ลบ</th>
                     </tr>
@@ -456,7 +455,6 @@
                 </tbody>
             </table>
         </div>
-        
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
@@ -465,7 +463,6 @@
     <div class="card" style="max-width: 600px; width: 100%; margin: auto;">
         <h2 style="color: var(--primary);">การพิจารณาอนุมัติ TOR</h2>
         <p>แสดงเฉพาะรายการที่ยังไม่ได้พิจารณา</p>
-        
         <div class="status-table-container">
             <table class="status-table">
                 <thead>
@@ -480,7 +477,6 @@
                 </tbody>
             </table>
         </div>
-        
         <button class="action-btn" style="background: #64748b; margin-top: 20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
@@ -494,94 +490,54 @@
         <button class="action-btn" style="background:#64748b; margin-top:20px;" onclick="showView('homeView')">กลับหน้าหลัก</button>
     </div>
 </div>
-    
+
 <div id="capture-container"><div id="box1" class="render-box"></div><div id="box2" class="render-box"></div><div id="box3" class="render-box"></div><div id="box4" class="render-box"></div></div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrdKhmpQjcLcbmEdAAytszok6vq_oKTvAPE13lJBvApswhXxLVOuJYuNGtP_oVNIHSoA/exec";
-
-    let selectedFiles = [];
-    
-    // ตัวแปรส่วนกลางของระบบเดิม
+    let selectedFiles = []; 
     let globalCreatorName = "";
     let globalSheetData = { d: "", e: "", f: "", g: "" };
-
-    // ตัวแปรส่วนกลางสำหรับจัดการขั้นตอนการสร้าง Template และเก็บพารามิเตอร์ปัจจุบัน
+    
     let currentTemplateName = "";
     let currentSuffix = "";
     let currentSourceViewId = "";
-
-    // ตัวแปรสำหรับจัดเก็บ Base64 รูปภาพชั่วคราวขณะเปิดหน้าเว็บ (ไม่ถูกบันทึกค้างไว้ในตัวระบบ)
+    
     let base64ImageTop = null;
     let base64ImageBottom = null;
 
-    // สร้างตารางกรอกรายการสินค้า 10 แถวเมื่อเริ่มต้นโหลดหน้าเว็บ
-    function buildItemsTableRows() {
-        const tbody = document.getElementById('itemsTableBody');
-        tbody.innerHTML = '';
-        for (let i = 1; i <= 10; i++) {
-            const row = `
-                <tr>
-                    <td>${i}</td>
-                    <td><input type="text" id="item_title_${i}" class="table-input" placeholder="รายการที่ ${i}"></td>
-                    <td><input type="text" id="item_brand_${i}" class="table-input" placeholder="ยี่ห้อ/รุ่น"></td>
-                    <td><input type="text" id="item_qty_${i}" class="table-input" placeholder="จำนวน"></td>
-                    <td><input type="text" id="item_unit_${i}" class="table-input" placeholder="หน่วย"></td>
-                    <td><input type="text" id="item_spec_${i}" class="table-input" placeholder="คุณลักษณะ"></td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        }
-    }
-    buildItemsTableRows();
-
-    function showView(id) {
-        resetSendForm(); 
-
+    function showView(viewId) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        const targetView = document.getElementById(id);
-        if (targetView) targetView.classList.add('active');
-
-        if (id === 'statusView') {
-            fetchStatus();
-        }
-        if (id === 'approveView') {
-            fetchApproveList();
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+            targetView.classList.add('active');
         }
     }
 
-    // ฟังก์ชันช่วยในการตั้งค่ารูปแบบก่อนเข้าหน้ากรอกข้อมูลหลัก
     function goToCreateForm(viewId, templateName, suffix) {
         currentTemplateName = templateName;
         currentSuffix = suffix;
         currentSourceViewId = viewId;
-        
-        // ล้างข้อมูลรูปภาพเก่าทิ้งเมื่อเริ่มต้นเลือกเทมเพลตใหม่เพื่อความปลอดภัย
-        resetImageUploads();
         showView(viewId);
     }
 
-    // กดปุ่มถัดไปจากหน้า Form หลักเพื่อเข้าสู่หน้ากรอกข้อมูลตารางพัสดุ
     function navigateToItemsView() {
-        const t1Layout = document.getElementById('t1ActionButtons');
-        const t2t3Layout = document.getElementById('t2t3ActionButtons');
-        const submitBtn = document.getElementById('submitTorDirectBtn');
-        const statusBtn = document.getElementById('viewTorStatusBtn');
+        buildItemsTableRows();
+        
+        const t1Actions = document.getElementById('t1ActionButtons');
+        const t2t3Actions = document.getElementById('t2t3ActionButtons');
         
         if (currentSuffix === 't1') {
-            t1Layout.style.display = 'block';
-            t2t3Layout.style.display = 'none';
-            submitBtn.style.display = 'block';
-            statusBtn.style.display = 'none'; 
-        } else if (currentSuffix === 't2' || currentSuffix === 't3') {
-            // ปรับเปลี่ยน Layout ปุ่มหน้าตารางพัสดุตามเงื่อนไขที่สั่งการ (ให้เหลือแต่ปุ่ม ถัดไป และเอา กลับหน้าหลักออก)
-            t1Layout.style.display = 'none';
-            t2t3Layout.style.display = 'block';
+            t1Actions.style.display = 'block';
+            t2t3Actions.style.display = 'none';
+        } else {
+            t1Actions.style.display = 'none';
+            t2t3Actions.style.display = 'block';
         }
+        
         showView('itemsDataView');
     }
 
-    // กดย้อนกลับจากตารางกรอกรายการพัสดุ ให้กลับไปหน้ากรอกข้อมูลหลักตัวล่าสุดที่เปิด
     function handleBackToTemplateView() {
         if (currentSourceViewId) {
             showView(currentSourceViewId);
@@ -590,7 +546,23 @@
         }
     }
 
-    // จัดการแปลงและพรีวิวไฟล์รูปภาพพัสดุ
+    function buildItemsTableRows() {
+        const tbody = document.getElementById('itemsTableBody');
+        tbody.innerHTML = '';
+        for (let i = 1; i <= 10; i++) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i}</td>
+                <td><input type="text" class="table-input row-item-name" placeholder="ชื่อพัสดุ"></td>
+                <td><input type="text" class="table-input row-item-brand" placeholder="ยี่ห้อ"></td>
+                <td><input type="text" class="table-input row-item-qty" placeholder="จำนวน"></td>
+                <td><input type="text" class="table-input row-item-unit" placeholder="หน่วย"></td>
+                <td><input type="text" class="table-input row-item-spec" placeholder="รายละเอียด"></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
     function handleImageFile(input, position) {
         const file = input.files[0];
         if (file) {
@@ -601,18 +573,38 @@
                     document.getElementById('imgPreviewTop').src = e.target.result;
                     document.getElementById('previewBoxTop').style.display = 'flex';
                     document.getElementById('uploadLabelTop').innerText = "เปลี่ยนรูปภาพด้านบน";
+                    document.getElementById('removeBtnTop').style.display = 'block';
                 } else {
                     base64ImageBottom = e.target.result;
                     document.getElementById('imgPreviewBottom').src = e.target.result;
                     document.getElementById('previewBoxBottom').style.display = 'flex';
                     document.getElementById('uploadLabelBottom').innerText = "เปลี่ยนรูปภาพด้านล่าง";
+                    document.getElementById('removeBtnBottom').style.display = 'block';
                 }
             };
             reader.readAsDataURL(file);
         }
     }
 
-    // ล้างค่ารูปภาพชั่วคราว
+    // ฟังก์ชันเพิ่มเติม: สำหรับลบหรือล้างข้อมูลรูปภาพที่แนบไปแล้ว
+    function removeSelectedImage(position) {
+        if (position === 'Top') {
+            base64ImageTop = null;
+            document.getElementById('imageInputTop').value = "";
+            document.getElementById('imgPreviewTop').src = "";
+            document.getElementById('previewBoxTop').style.display = 'none';
+            document.getElementById('uploadLabelTop').innerText = "คลิกเพื่อเลือกรูปภาพด้านบน";
+            document.getElementById('removeBtnTop').style.display = 'none';
+        } else {
+            base64ImageBottom = null;
+            document.getElementById('imageInputBottom').value = "";
+            document.getElementById('imgPreviewBottom').src = "";
+            document.getElementById('previewBoxBottom').style.display = 'none';
+            document.getElementById('uploadLabelBottom').innerText = "คลิกเพื่อเลือกรูปภาพด้านล่าง";
+            document.getElementById('removeBtnBottom').style.display = 'none';
+        }
+    }
+
     function resetImageUploads() {
         base64ImageTop = null;
         base64ImageBottom = null;
@@ -622,133 +614,85 @@
         document.getElementById('previewBoxBottom').style.display = 'none';
         document.getElementById('uploadLabelTop').innerText = "คลิกเพื่อเลือกรูปภาพด้านบน";
         document.getElementById('uploadLabelBottom').innerText = "คลิกเพื่อเลือกรูปภาพด้านล่าง";
+        document.getElementById('removeBtnTop').style.display = 'none';
+        document.getElementById('removeBtnBottom').style.display = 'none';
     }
 
-    // รวบรวมข้อมูลรายการพัสดุและสั่ง Generate PDF
     function triggerPDFGeneration() {
         generatePDF(currentTemplateName, currentSuffix);
     }
 
-    // เรียกฟังก์ชันประมวลผลสร้าง PDF และอัปโหลดไปยังระบบทันที
     function triggerPDFDirectUpload() {
         generateAndUploadPDF(currentTemplateName, currentSuffix);
     }
 
-    // ฟังก์ชันเดิม: ตรวจสอบรายชื่อผู้สร้าง TOR จาก Google Sheet
     async function verifyCreator() {
         const creatorInput = document.getElementById('creatorInput');
         const nameValue = creatorInput.value.trim();
-        
         if (!nameValue) {
             alert("กรุณากรอกข้อมูลผู้สร้าง TOR");
             return;
         }
-
         document.getElementById('loadingOverlay').style.display = 'flex';
         document.getElementById('loadingText').innerText = "กำลังตรวจสอบข้อมูลผู้สร้าง TOR...";
-
         try {
             const response = await fetch(`${SCRIPT_URL}?action=getCreatorData&creator=${encodeURIComponent(nameValue)}`);
             const result = await response.json();
-            
             if (result.success) {
                 globalCreatorName = nameValue;
                 globalSheetData.d = result.data.d || "";
                 globalSheetData.e = result.data.e || "";
                 globalSheetData.f = result.data.f || "";
                 globalSheetData.g = result.data.g || "";
-                
                 document.getElementById('loadingOverlay').style.display = 'none';
                 showView('templateView');
             } else {
                 document.getElementById('loadingOverlay').style.display = 'none';
-                alert("❌ ไม่มีข้อมูลผู้สร้าง TOR");
+                alert("❌ ไม่มีข้อมูลผู้สร้างท่านนี้ในระบบฐานข้อมูล");
             }
         } catch (err) {
-            console.error(err);
             document.getElementById('loadingOverlay').style.display = 'none';
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อตรวจสอบผู้สร้าง");
+            alert("❌ เกิดข้อผิดพลาดทางเทคนิคในการเชื่อมต่อระบบ");
+            console.error(err);
         }
     }
 
     function handleFile(input) {
-        const files = Array.from(input.files);
-        if (files.length > 0) {
-            selectedFiles = files;
-            const names = files.map(f => "📄 " + f.name).join('\n');
-            document.getElementById('fileNameDisplay').innerText = "เตรียมส่งไฟล์:\n" + names;
-            document.getElementById('fileNameDisplay').style.display = "block";
-            document.getElementById('uploadLabel').innerText = "เปลี่ยนการเลือกไฟล์";
-            document.getElementById('finalSubmitBtn').style.display = "block";
+        selectedFiles = Array.from(input.files);
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const uploadLabel = document.getElementById('uploadLabel');
+        const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+
+        if (selectedFiles.length > 0) {
+            let names = selectedFiles.map((f, idx) => `${idx+1}. ${f.name}`).join('\n');
+            fileNameDisplay.innerText = "ไฟล์ที่เลือกประกอบด้วย:\n" + names;
+            fileNameDisplay.style.display = "block";
+            uploadLabel.innerText = `เลือกไฟล์สำเร็จแล้ว (${selectedFiles.length} ไฟล์)`;
+            finalSubmitBtn.style.display = "block";
+        } else {
+            clearSelectedFiles();
         }
     }
 
-    async function uploadToDrive() {
-        if (selectedFiles.length === 0) return;
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        
-        let successCount = 0;
-        
-        for (let i = 0; i < selectedFiles.length; i++) {
-            const file = selectedFiles[i];
-            document.getElementById('loadingText').innerText = `กำลังอัปโหลดไฟล์ (${i + 1}/${selectedFiles.length}): ${file.name}`;
-
-            try {
-                const base64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-                    reader.readAsDataURL(file);
-                });
-
-                const data = {
-                    base64: base64,
-                    type: file.type,
-                    name: file.name
-                };
-
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                if (result.result === "success") successCount++;
-
-            } catch (err) {
-                console.error("Error uploading:", file.name, err);
-            }
-        }
-
-        document.getElementById('loadingOverlay').style.display = 'none';
-        alert(`🚀 ส่งสำเร็จทั้งหมด ${successCount} จาก ${selectedFiles.length} ไฟล์`);
-        showView('homeView');
-    }
-
-    function resetSendForm() {
-        selectedFiles = []; 
+    function clearSelectedFiles() {
+        selectedFiles = [];
         const fileInput = document.getElementById('fileInput');
         if (fileInput) { fileInput.value = ""; }
-
         const fileNameDisplay = document.getElementById('fileNameDisplay');
         if (fileNameDisplay) {
             fileNameDisplay.innerText = "";
             fileNameDisplay.style.display = "none";
         }
-
         const uploadLabel = document.getElementById('uploadLabel');
         if (uploadLabel) { uploadLabel.innerText = "คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)"; }
-
         const finalSubmitBtn = document.getElementById('finalSubmitBtn');
         if (finalSubmitBtn) { finalSubmitBtn.style.display = "none"; }
     }
 
-    // ยกเลิกการบังคับตรวจจับการพิมพ์ฟอร์มเพื่อรักษาความเสถียรเดิม
     function checkFormValid(suffix) {
         return true;
     }
 
-    // ฟังก์ชันสร้างแคนวาสของหน้าเอกสารหลักและข้อมูลตารางพัสดุ 10 รายการ
     async function buildDocumentCanvas(suffix) {
         const val1 = document.getElementById(`input1_${suffix}`).value || "";
         const val2 = document.getElementById(`input2_${suffix}`).value || "";
@@ -759,24 +703,22 @@
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
         canvas.width = 1000;
         canvas.height = 1200;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
         ctx.font = "normal 14px 'Sarabun', sans-serif";
         ctx.fillStyle = "#1e293b";
-        
+
         ctx.fillText(val1, 160, 170);
         ctx.fillText(val2, 0, 337);
         ctx.fillText(val3, 853, 108);
-        ctx.fillText(val4, 895, 170);  
+        ctx.fillText(val4, 895, 170);
         ctx.fillText(val5, 770, 787);
-        ctx.fillText(val6, 770, 856);  
+        ctx.fillText(val6, 770, 856);
 
         ctx.font = "normal 14px 'Sarabun', sans-serif";
         ctx.fillStyle = "#0f172a";
-        
         ctx.fillText(globalSheetData.d, 853, 76);
         ctx.fillText(globalSheetData.e, 160, 108);
         ctx.fillText(globalSheetData.f, 455, 108);
@@ -785,68 +727,42 @@
         const now = new Date();
         const dayStr = String(now.getDate()).padStart(2, '0');
         const monthStr = String(now.getMonth() + 1).padStart(2, '0');
-        const yearStr = String(now.getFullYear() + 543).slice(-2); 
-        const currentDateFormatted = `${dayStr}/${monthStr}/${yearStr}`;
-        
-        ctx.fillText(currentDateFormatted, 160, 76);
-        
-        ctx.font = "normal 12px 'Sarabun', sans-serif";
-        
-        const yPositions = {
-            1: 412,
-            2: 444,
-            3: 478,
-            4: 512,
-            5: 543,
-            6: 578,
-            7: 611,
-            8: 645,
-            9: 678,
-            10: 712
-        };
+        const yearStr = String(now.getFullYear() + 543);
+        ctx.fillText(`${dayStr}/${monthStr}/${yearStr}`, 853, 44);
 
-        for (let i = 1; i <= 10; i++) {
-            const title = document.getElementById(`item_title_${i}`).value.trim();
-            const brand = document.getElementById(`item_brand_${i}`).value.trim();
-            const qty = document.getElementById(`item_qty_${i}`).value.trim();
-            const unit = document.getElementById(`item_unit_${i}`).value.trim();
-            const spec = document.getElementById(`item_spec_${i}`).value.trim();
+        const rows = document.querySelectorAll('#itemsTableBody tr');
+        let currentY = 460;
+        rows.forEach((row) => {
+            const name = row.querySelector('.row-item-name').value || "";
+            const brand = row.querySelector('.row-item-brand').value || "";
+            const qty = row.querySelector('.row-item-qty').value || "";
+            const unit = row.querySelector('.row-item-unit').value || "";
+            const spec = row.querySelector('.row-item-spec').value || "";
 
-            if (title || brand || qty || unit || spec) {
-                let currentYPosition = yPositions[i];
-                ctx.fillText(title, 37, currentYPosition);
-                ctx.fillText(brand, 332, currentYPosition);
-                ctx.fillText(qty, 540, currentYPosition);
-                ctx.fillText(unit, 607, currentYPosition);
-                ctx.fillText(spec, 652, currentYPosition);
+            if (name || brand || qty || unit || spec) {
+                ctx.fillText(name, 100, currentY);
+                ctx.fillText(brand, 380, currentY);
+                ctx.fillText(qty, 590, currentY);
+                ctx.fillText(unit, 690, currentY);
+                ctx.fillText(spec, 790, currentY);
             }
-        }
+            currentY += 28;
+        });
+
         return canvas;
     }
 
-    // ฟังก์ชันสำหรับฝังรูปภาพลงในหน้า 2 ของเอกสาร PDF คอนฟิกค่าตำแหน่งและขนาดตรงนี้ได้เลย
     async function embedImagesToSecondPage(pdfDoc) {
         const pages = pdfDoc.getPages();
-        if (pages.length < 2) return; // หาก PDF ต้นฉบับมีไม่ถึง 2 หน้าจะไม่ทำงานส่วนนี้
+        if (pages.length < 2) {
+            console.log("Template file has less than 2 pages, cannot embed attachment images.");
+            return;
+        }
         const secondPage = pages[1];
 
-        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านบน (Top Image Configurations)
-        const topConfig = {
-            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
-            y: 430,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
-            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งบน
-            height: 280    // ขนาดความสูงรูปภาพตำแหน่งบน
-        };
+        const topConfig = { x: 60, y: 550, width: 475, height: 280 };
+        const bottomConfig = { x: 60, y: 100, width: 475, height: 280 };
 
-        // 🛠️ จุดปรับปรุงตำแหน่งรูปภาพด้านล่าง (Bottom Image Configurations)
-        const bottomConfig = {
-            x: 60,         // ปรับระยะห่าง ซ้าย-ขวา (เริ่มวัดจากขอบซ้าย)
-            y: 100,        // ปรับระยะห่าง บน-ล่าง (เริ่มวัดจากขอบล่างขึ้นไป)
-            width: 475,    // ขนาดความกว้างรูปภาพตำแหน่งล่าง
-            height: 280    // ขนาดความสูงรูปภาพตำแหน่งล่าง
-        };
-
-        // ประมวลผลรูปภาพตำแหน่งด้านบน
         if (base64ImageTop) {
             try {
                 const imgBytes = await fetch(base64ImageTop).then(res => res.arrayBuffer());
@@ -862,7 +778,6 @@
             }
         }
 
-        // ประมวลผลรูปภาพตำแหน่งด้านล่าง
         if (base64ImageBottom) {
             try {
                 const imgBytes = await fetch(base64ImageBottom).then(res => res.arrayBuffer());
@@ -879,13 +794,11 @@
         }
     }
 
-    // ฟังก์ชันสร้าง PDF และดาวน์โหลดลงเครื่องพร้อมเปลี่ยนชื่อตาม "ชื่องาน"
     async function generatePDF(templateName, suffix) {
         if (!templateName || !suffix) {
             alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง กรุณาเริ่มกระบวนการเลือกใหม่อีกครั้ง");
             return;
         }
-
         document.getElementById('loadingOverlay').style.display = 'flex';
         document.getElementById('loadingText').innerText = `กำลังดึงไฟล์เทมเพลตและประมวลผล PDF...`;
 
@@ -897,23 +810,17 @@
                 if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
                 return res.arrayBuffer();
             });
-            
+
             const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
             const firstPage = pdfDoc.getPages()[0];
-            
+
             const canvas = await buildDocumentCanvas(suffix);
             const pngDataUrl = canvas.toDataURL('image/png');
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
-            
-            firstPage.drawImage(embeddedImg, {
-                x: 30,
-                y: 100,
-                width: 535,
-                height: 642
-            });
 
-            // ทำการวาดรูปภาพแนบใส่หน้าที่ 2 (เฉพาะ Template 2 และ Template 3)
+            firstPage.drawImage(embeddedImg, { x: 30, y: 100, width: 535, height: 642 });
+
             if (suffix === 't2' || suffix === 't3') {
                 await embedImagesToSecondPage(pdfDoc);
             }
@@ -924,63 +831,46 @@
             link.href = URL.createObjectURL(blob);
             link.download = finalFileName;
             link.click();
-
-            alert("🎉 สร้างและดาวน์โหลดเอกสารสำเร็จ!");
-            
-            if (suffix === 't2' || suffix === 't3') {
-                showView('imageAttachmentView');
-            } else {
-                showView('itemsDataView');
-            }
         } catch (error) {
             console.error(error);
             alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
-        } finally {
+        } else {
             document.getElementById('loadingOverlay').style.display = 'none';
         }
     }
 
-    // ฟังก์ชันสร้าง PDF และส่งเข้าสู่ระบบ (Drive) โดยตรงโดยไม่ต้องทำการดาวน์โหลดลงคอมพิวเตอร์ก่อน
     async function generateAndUploadPDF(templateName, suffix) {
         if (!templateName || !suffix) {
-            alert("❌ รูปแบบเทมเพลตไม่ถูกต้อง ไม่สามารถส่งข้อมูลได้");
+            alert("❌ ไม่พบข้อมูลรูปแบบไฟล์เทมเพลตปัจจุบัน");
             return;
         }
-
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = `กำลังจัดทำระบบเอกสารและส่งข้อมูลไปยังเซิร์ฟเวอร์...`;
+        document.getElementById('loadingText').innerText = "กำลังประมวลผลโครงสร้างไฟล์และอัปโหลดข้อมูล...";
 
         try {
             const workNameValue = document.getElementById(`input1_${suffix}`).value.trim();
-            const finalFileName = workNameValue ? `${workNameValue}.pdf` : `TOR_${templateName.split('.')[0]}_Generated.pdf`;
+            const finalFileName = workNameValue ? `${workNameValue}.pdf` : `TOR_${templateName.split('.')[0]}_Direct.pdf`;
 
             const templateBytes = await fetch(templateName).then(res => {
-                if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบ ${templateName} ในระบบ`);
+                if (!res.ok) throw new Error(`ไม่พบไฟล์แม่แบบต้นฉบับ ${templateName}`);
                 return res.arrayBuffer();
             });
-            
+
             const pdfDoc = await PDFLib.PDFDocument.load(templateBytes);
             const firstPage = pdfDoc.getPages()[0];
-            
+
             const canvas = await buildDocumentCanvas(suffix);
             const pngDataUrl = canvas.toDataURL('image/png');
             const textImgBytes = await fetch(pngDataUrl).then(res => res.arrayBuffer());
             const embeddedImg = await pdfDoc.embedPng(textImgBytes);
-            
-            firstPage.drawImage(embeddedImg, {
-                x: 30,
-                y: 100,
-                width: 535,
-                height: 642
-            });
 
-            // ทำการวาดรูปภาพแนบใส่หน้าที่ 2 (เฉพาะ Template 2 และ Template 3)
+            firstPage.drawImage(embeddedImg, { x: 30, y: 100, width: 535, height: 642 });
+
             if (suffix === 't2' || suffix === 't3') {
                 await embedImagesToSecondPage(pdfDoc);
             }
 
             const pdfBase64 = await pdfDoc.saveAsBase64();
-
             const data = {
                 base64: pdfBase64,
                 type: "application/pdf",
@@ -991,8 +881,8 @@
                 method: 'POST',
                 body: JSON.stringify(data)
             });
-            
             const result = await response.json();
+
             if (result.result === "success") {
                 alert(`🚀 สร้างแผ่นงานเอกสารและส่ง TOR [ ${finalFileName} ] เข้าสู่ระบบสำเร็จเรียบร้อยแล้ว!`);
                 if (suffix === 't2' || suffix === 't3') {
@@ -1014,13 +904,11 @@
     async function fetchStatus() {
         const tableBody = document.getElementById('statusTableBody');
         tableBody.innerHTML = '<tr><td colspan="4">กำลังดึงข้อมูล...</td></tr>';
-        
         try {
             const response = await fetch(SCRIPT_URL);
             const data = await response.json();
-            
             tableBody.innerHTML = '';
-            
+
             if (data.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="4">ไม่พบรายการเอกสาร</td></tr>';
                 return;
@@ -1031,220 +919,198 @@
                 if (file.name.includes('Approve_')) {
                     statusHTML = '<span class="status-badge badge-approve">✅ อนุมัติแล้ว</span>';
                 } else if (file.name.includes('Reject_')) {
-                    statusHTML = '<span class="status-badge badge-reject">❌ ไม่อนุมัติ</span>';
+                    statusHTML = '<span class="status-badge badge-reject">❌ ปฏิเสธ</span>';
                 } else {
-                    statusHTML = '<span class="status-badge badge-wait">⏳ รออนุมัติ</span>';
+                    statusHTML = '<span class="status-badge badge-wait">⏳ รอพิจารณา</span>';
                 }
 
-                const row = `
-                    <tr>
-                        <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
-                        <td style="text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${file.name}</td>
-                        <td>${statusHTML}</td>
-                        <td><span class="status-icon" onclick="deleteFile('${file.id}')">🗑️</span></td>
-                    </tr>
+                let cleanName = file.name.replace('Approve_', '').replace('Reject_', '');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">👁️</span></td>
+                    <td style="text-align:left;">${cleanName}</td>
+                    <td>${statusHTML}</td>
+                    <td><span class="status-icon" style="color:#dc3545;" onclick="askDeleteFile('${file.id}')">🗑️</span></td>
                 `;
-                tableBody.innerHTML += row;
+                tableBody.appendChild(tr);
             });
         } catch (err) {
-            tableBody.innerHTML = '<tr><td colspan="4">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="4" style="color:red;">ไม่สามารถโหลดข้อมูลได้ในขณะนี้</td></tr>';
         }
     }
 
-    async function fetchApproveList() {
-        const tableBody = document.getElementById('approveTableBody');
-        tableBody.innerHTML = '<tr><td colspan="3">กำลังโหลด...</td></tr>';
-        
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            
-            const filteredData = data.filter(file => 
-                !file.name.startsWith('Approve_') && !file.name.startsWith('Reject_')
-            );
-
-            tableBody.innerHTML = '';
-            if (filteredData.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3">ไม่มีรายการค้างพิจารณา ✅</td></tr>';
-                return;
-            }
-
-            filteredData.forEach(file => {
-                const row = `
-                    <tr>
-                        <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">🔍</span></td>
-                        <td style="text-align: left;">${file.name}</td>
-                        <td>
-                            <button class="btn-approve" onclick="processDecision('${file.id}', '${file.url}', 'approve')">อนุมัติ</button>
-                            <button class="btn-reject" onclick="processDecision('${file.id}', '${file.url}', 'reject')">ไม่ผ่าน</button>
-                        </td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-            });
-        } catch (err) {
-            tableBody.innerHTML = '<tr><td colspan="3">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-        }
-    }
-
-    async function processDecision(fileId, fileUrl, status) {
-        if (!confirm(`ยืนยันการเลือก: ${status === 'approve' ? 'อนุมัติ' : 'ไม่อนุมัติ'}?`)) return;
-
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
-
-        try {
-            let payload = { action: "approve_process", fileId: fileId, status: status };
-
-            if (status === 'approve') {
-                const resBase64 = await fetch(`${SCRIPT_URL}?action=getFileBase64&fileId=${fileId}`);
-                const base64Content = await resBase64.text();
-                
-                const pdfBytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
-                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-                const firstPage = pdfDoc.getPages()[0];
-
-                const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH';
-                try {
-                    const imgResponse = await fetch(stampUrl);
-                    const imgBytes = await imgResponse.arrayBuffer();
-                    const stampImg = await pdfDoc.embedPng(imgBytes);
-
-                    const displayWidth = 110; 
-                    const scaleFactor = displayWidth / stampImg.width;
-                    const displayHeight = stampImg.height * scaleFactor;
-
-                    firstPage.drawImage(stampImg, { 
-                        x: 105, 
-                        y: 130, 
-                        width: displayWidth, 
-                        height: displayHeight 
-                    });
-                } catch (e) { 
-                    console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
-                }
-
-                const now = new Date();
-                const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543).toString().substring(2)}`;
-                firstPage.drawText(dateStr, { x: 144, y: 105, size: 7 });
-
-                payload.pdfBase64 = await pdfDoc.saveAsBase64();
-            }
-
-            const finalResponse = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            const result = await finalResponse.json();
-            if (result.result === "success") {
-                alert("🚀 อนุมัติและบันทึกรูปภาพลง PDF เรียบร้อยแล้ว!");
-                fetchApproveList();
-            }
-        } catch (err) {
-            alert("❌ เกิดข้อผิดพลาด: " + err.message);
-        } finally {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-    }
-
-    let currentPwdType = ''; 
+    let currentPwdType = '';
     let currentDeleteId = '';
-
-    function togglePwd() {
-        const input = document.getElementById('modalInput');
-        const icon = document.querySelector('.toggle-password');
-        if (input.type === "password") {
-            input.type = "text";
-            icon.innerText = "🔒";
-        } else {
-            input.type = "password";
-            icon.innerText = "👁️";
-        }
-    }
 
     function checkAuth(type) {
         currentPwdType = type;
+        const modalInput = document.getElementById('modalInput');
+        modalInput.value = '';
+        
         if (type === 'approve') {
-            document.getElementById('modalTitle').innerText = "รหัสเข้าหน้าอนุมัติ";
+            document.getElementById('modalTitle').innerText = "รหัสผู้พิจารณาอนุมัติ TOR";
         } else if (type === 'debug') {
-            currentPwdType = 'approve'; 
             document.getElementById('modalTitle').innerText = "รหัสเข้าหน้า @MIN";
         }
-        openModal();
-    }
-
-    async function deleteFile(fileId) {
-        currentPwdType = 'delete';
-        currentDeleteId = fileId;
-        document.getElementById('modalTitle').innerText = "รหัสยืนยันการลบ";
-        openModal();
-    }
-
-    function openModal() {
-        document.getElementById('modalInput').value = '';
+        
         document.getElementById('pwdModal').style.display = 'flex';
     }
 
-    const originalShowView = showView;
-    showView = function(id) {
-        originalShowView(id);
-        if (id === 'statusView') {
-            fetchStatus();
-        }
+    function askDeleteFile(fileId) {
+        currentDeleteId = fileId;
+        currentPwdType = 'delete';
+        const modalInput = document.getElementById('modalInput');
+        modalInput.value = '';
+        document.getElementById('modalTitle').innerText = "สิทธิ์ผู้ดูแลการลบไฟล์ระบบ";
+        document.getElementById('pwdModal').style.display = 'flex';
     }
 
     function closeModal() {
         document.getElementById('pwdModal').style.display = 'none';
     }
 
+    function togglePwd() {
+        const input = document.getElementById('modalInput');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
     async function submitPassword() {
         const pwdInput = document.getElementById('modalInput');
         const pwd = pwdInput.value.trim();
-        
-        if (!pwd) {
-            alert("กรุณาใส่รหัสผ่าน");
-            return;
-        }
+        if (!pwd) { alert("กรุณาป้อนรหัสผ่านก่อนเข้าหน้ารายการ"); return; }
 
         document.getElementById('loadingOverlay').style.display = 'flex';
-        document.getElementById('loadingText').innerText = "กำลังตรวจสอบรหัสผ่าน...";
-        
+        document.getElementById('loadingText').innerText = "กำลังตรวจสิทธิ์เข้าถึง...";
+
         try {
-            const url = `${SCRIPT_URL}?action=checkPassword&type=${currentPwdType}&password=${encodeURIComponent(pwd)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Network response was not ok');
-            
+            const response = await fetch(`${SCRIPT_URL}?action=verifyPassword&type=${currentPwdType}&password=${encodeURIComponent(pwd)}`);
             const result = await response.json();
             document.getElementById('loadingOverlay').style.display = 'none';
 
-            if (String(result.success).toLowerCase() === "true") {
-                const checkedType = currentPwdType;
+            if (result.success) {
+                let checkedType = currentPwdType;
                 closeModal();
-                
                 const modalTitleText = document.getElementById('modalTitle').innerText;
+                
                 if (modalTitleText === "รหัสเข้าหน้า @MIN") {
                     showView('debugView');
                 } else if (checkedType === 'approve') {
                     showView('approveView');
                     fetchApproveList();
                 } else if (checkedType === 'delete') {
-                    executeDelete(currentDeleteId); 
+                    executeDelete(currentDeleteId);
                 }
             } else {
                 alert("❌ รหัสผ่านไม่ถูกต้องสำหรับสิทธิ์นี้");
-                pwdInput.value = ""; 
+                pwdInput.value = "";
             }
         } catch (e) {
             console.error("Error details:", e);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบตรวจสอบรหัสผ่าน");
+            alert("เกิดข้อผิดพลาดในการตรวจสอบรหัสผ่าน");
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    }
+
+    async function fetchApproveList() {
+        const tbody = document.getElementById('approveTableBody');
+        tbody.innerHTML = '<tr><td colspan="3">กำลังดึงรายการ...</td></tr>';
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getApproveList`);
+            const data = await response.json();
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">ไม่มีรายการเอกสารที่รอการตรวจสอบค้างอยู่</td></tr>';
+                return;
+            }
+
+            data.forEach(file => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="status-icon" onclick="window.open('${file.url}', '_blank')">👁️</span></td>
+                    <td style="text-align:left;">${file.name}</td>
+                    <td>
+                        <button class="btn-approve" onclick="processApproval('${file.id}', 'approve')">อนุมัติ</button>
+                        <button class="btn-reject" onclick="processApproval('${file.id}', 'reject')">ปฏิเสธ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="3" style="color:red;">ไม่สามารถเรียกดูรายการข้อมูลได้คัดกรองล้มเหลว</td></tr>';
+        }
+    }
+
+    async function processApproval(fileId, status) {
+        if (!confirm("ยืนยันประมวลผลการตรวจสอบสำหรับเอกสารแผ่นงานนี้?")) return;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        document.getElementById('loadingText').innerText = "กำลังประมวลผล PDF...";
+
+        try {
+            let payload = { action: "approve_process", fileId: fileId, status: status };
+            if (status === 'approve') {
+                const resBase64 = await fetch(`${SCRIPT_URL}?action=getFileBase64&fileId=${fileId}`);
+                const base64Content = await resBase64.text();
+
+                const pdfBytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+                const firstPage = pdfDoc.getPages()[0];
+
+                const stampUrl = 'https://lh3.googleusercontent.com/d/1fd8tLiRJh2MO3s9W2qf53oea4UCAArBH'; 
+                try {
+                    const imgResponse = await fetch(stampUrl);
+                    const imgBytes = await imgResponse.arrayBuffer();
+                    const stampImg = await pdfDoc.embedPng(imgBytes);
+
+                    const displayWidth = 110;
+                    const scaleFactor = displayWidth / stampImg.width;
+                    const displayHeight = stampImg.height * scaleFactor;
+
+                    firstPage.drawImage(stampImg, {
+                        x: 105,
+                        y: 130,
+                        width: displayWidth,
+                        height: displayHeight
+                    });
+                } catch (e) {
+                    console.error("ไม่สามารถโหลดรูปตราประทับได้:", e);
+                }
+
+                const now = new Date();
+                const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${(now.getFullYear() + 543)}`;
+                
+                firstPage.drawText(dateStr, {
+                    x: 115,
+                    y: 110,
+                    size: 11,
+                    color: PDFLib.rgb(0.06, 0.37, 0.27)
+                });
+
+                const modifiedPdfBase64 = await pdfDoc.saveAsBase64();
+                payload.base64 = modifiedPdfBase64;
+            }
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (result.result === "success") {
+                alert("📝 บันทึกผลการพิจารณาสำเร็จ");
+                fetchApproveList();
+            } else {
+                alert("❌ การประมวลผลล้มเหลว: " + result.error);
+            }
+        } catch (err) {
+            alert("❌ เกิดข้อผิดพลาดร้ายแรงกรุณาตรวจสอบโครงสร้างข้อมูลปลายทาง");
+            console.error(err);
+        } finally {
             document.getElementById('loadingOverlay').style.display = 'none';
         }
     }
 
     async function executeDelete(fileId) {
-        if (!confirm("ยืนยันการลบไฟล์นี้ใช่หรือไม่?")) return;
-
         document.getElementById('loadingOverlay').style.display = 'flex';
         document.getElementById('loadingText').innerText = "กำลังดำเนินการลบ...";
 
@@ -1281,8 +1147,5 @@
         }
     }
 </script>
-
-<style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
-
 </body>
 </html>
