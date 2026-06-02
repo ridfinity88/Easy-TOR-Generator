@@ -267,7 +267,7 @@
         
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
-            <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF (เลือกได้หลายไฟล์)</div>
+            <div id="uploadLabel">คลิกเพื่อเลือกไฟล์ PDF</div>
             <div id="fileNameDisplay" class="file-info" style="display: none; white-space: pre-line; text-align: left;"></div>
             <input type="file" id="fileInput" hidden accept="application/pdf" multiple onchange="handleFile(this)">
         </div>
@@ -281,7 +281,6 @@
 <div id="createView_t1" class="view">
     <div class="card">
         <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> เฉพาะหน้า TOR (Template 1)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
             <input type="text" class="data-input-t1" id="input1_t1" placeholder="ระบุชื่องาน">
@@ -314,7 +313,6 @@
 <div id="createView_t2" class="view">
     <div class="card">
         <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> TOR + แนบภาพ (Template 2)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
             <input type="text" class="data-input-t2" id="input1_t2" placeholder="ระบุชื่องาน">
@@ -347,7 +345,6 @@
 <div id="createView_t3" class="view">
     <div class="card">
         <h2>สร้างเอกสาร TOR</h2>
-        <p><b>รูปแบบ:</b> TOR + แนบภาพ + ใบ JOB (Template 3)</p>
         <div class="input-group">
             <label>ชื่องาน</label>
             <input type="text" class="data-input-t3" id="input1_t3" placeholder="ระบุชื่องาน">
@@ -380,7 +377,6 @@
 <div id="itemsDataView" class="view">
     <div class="card">
         <h2>ระบุข้อมูลรายการพัสดุที่ขอซื้อ</h2>
-        <p>กรอกข้อมูลรายการที่ต้องการ (ไม่จำเป็นต้องกรอกครบทุกช่อง)</p>
         
         <div class="items-table-container">
             <table class="items-table" id="itemsInputTable">
@@ -417,7 +413,6 @@
 <div id="imageAttachmentView" class="view">
     <div class="card">
         <h2>แนบรูปภาพประกอบเอกสาร TOR</h2>
-        <p>สำหรับแสดงในส่วนแนบภาพถ่าย (หน้าที่ 2 ของเอกสาร)</p>
         
         <div class="input-group">
             <label>รูปภาพพัสดุ / ตำแหน่งด้านบน</label>
@@ -456,7 +451,6 @@
 <div id="jobAttachmentView" class="view">
     <div class="card">
         <h2>แนบรูปภาพใบ JOB ประกอบเอกสาร TOR</h2>
-        <p>สำหรับแสดงในส่วนแนบเอกสารใบ JOB (หน้าที่ 3 ของเอกสาร)</p>
         
         <div class="input-group">
             <label>รูปภาพใบ JOB (แนบได้ 1 ภาพ)</label>
@@ -533,7 +527,6 @@
 <div id="debugView" class="view">
     <div class="card" style="max-width:700px; width:100%; margin:auto;">
         <h2>@MIN</h2>
-        <p>ตรวจสอบค่าที่ดึงมาจาก Google Sheet</p>
         <button class="action-btn" onclick="loadDebugPasswords()">โหลดข้อมูลรหัส</button>
         <div style="margin-top:20px; text-align:left; background:#0f172a; color:#22c55e; padding:15px; border-radius:12px; max-height:500px; overflow:auto; font-family:monospace; white-space:pre-wrap;" id="debugOutput">ยังไม่มีข้อมูล</div>
         <button class="action-btn" style="background:#64748b; margin-top:20px;" onclick="navigateToHome()">กลับหน้าหลัก</button>
